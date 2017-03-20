@@ -128,8 +128,8 @@ int main()
 {
 	using namespace std;
 	ios_base::sync_with_stdio(false);
-	freopen("ear.in", "r", stdin);
-	freopen("ear.out", "w", stdout);
+//	freopen("ear.in", "r", stdin);
+//	freopen("ear.out", "w", stdout);
 
 	int N, M;
 	cin >> N >> M;
