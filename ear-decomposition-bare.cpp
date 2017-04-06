@@ -1,6 +1,7 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <chrono>
 
 struct vertex_t {
 	int id;
@@ -129,14 +130,15 @@ public:
 	void ear_decompose()
 	{
 		int total_back_edges = 0;
-		int current_time = 1;
+		int current_time = 0;
 		for (int i = 0; i < G.N; ++i) {
 			if (!visited[i]) {
-				dfs({i}, current_time);
+				dfs({i}, ++current_time);
 			}
 			total_back_edges += back_edges[i].size();
 		}
 		ear_decomposition.reserve(total_back_edges + 5); 
+//		std::cerr << G.N << ' ' << current_time << std::endl;
 		assert(current_time == G.N);
 
 		ear_decomposition.push_back({});
@@ -148,6 +150,8 @@ public:
 			int p = parent[u].id;
 			ears_of[u] = find_ears({u}, ears_of[p]);
 		}
+
+		ear_decomposition.erase(ear_decomposition.begin());
 	}
 };
 
@@ -159,16 +163,29 @@ int main()
 //	freopen("ear.out", "w", stdout);
 
 	int N, M;
-	cin >> N >> M;
+	scanf("%d%d", &N, &M);
 	undirected_graph_t g(N);
 	for (int i = 0; i < M; ++i) {
 		int u, v;
-		cin >> u >> v;
+		scanf("%d%d", &u, &v);
 		g.add_edge({u - 1}, {v - 1});
 	}
 
+	auto start = chrono::steady_clock::now();
+
 	two_connected_prop T(g);
 	T.ear_decompose();
+
+	/*
+	 * at this point, we are done with computing the ear-decomposition,
+	 * we will just spend the rest of the time pretty printing
+	 */
+
+	auto finish = chrono::steady_clock::now();
+    auto int_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
+
+	cerr << "computed ear decomposition in " 
+		<< int_ms.count() << " milliseconds" << endl;
 
 	auto vec = T.ear_decomposition;
 	/* code used to print output in format for asc24b
@@ -190,19 +207,18 @@ int main()
 //		cout << p.rbegin()->v.id + 1 << '\n';
 //	}
 
-	vec.erase(vec.begin());
 	int conn_id = 1;
 	for (auto &two_conn : vec) {
-		cout << "component " << conn_id << endl;
+		printf("component %d\n", conn_id);
 		int ear_id = 1;
 		for (auto &ear : two_conn) {
-			cout << "ear " << ear_id << endl;
+			printf("ear %d\n", ear_id);
 			for (auto &e : ear) {
-				cout << '\t' << e.u.id << " -> " << e.v.id << endl;
+				printf("\t%d -> %d\n", e.u.id, e.v.id);
 			}
 			++ear_id;
 		}
-		cout << endl;
+		printf("\n");
 		++conn_id;
 	}
 }
