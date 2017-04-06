@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <chrono>
+#include <stack>
 
 struct vertex_t {
 	int id;
@@ -75,26 +76,42 @@ public:
 		ears_of.resize(G.N);
 	}
 
+	struct dfs_stack_elem_t {
+		vertex_t u;
+		std::vector<vertex_t>::iterator it;
+	};
+
 	void
 	dfs(vertex_t root, int &current_time)
 	{
+		std::stack<dfs_stack_elem_t> dfs_stack;
+		dfs_stack.push({root, G.adj_list[root.id].begin()});
 		visited[root.id] = 1;
-		entry_time[root.id] = current_time;
+		entry_time[root.id] = ++current_time;
 		vert[current_time] = root;
 
-		for (const vertex_t &v : G.adj_list[root.id]) {
-			if (!visited[v.id]) {
-				parent[v.id] = root;
-				dfs(v, ++current_time);
+		while(!dfs_stack.empty()) {
+			vertex_t u = dfs_stack.top().u;
+			std::vector<vertex_t>::iterator &it = dfs_stack.top().it;
+			if (it == G.adj_list[u.id].end()) {
+				dfs_stack.pop();
+				exit_time[u.id] = current_time;
 			} else {
-				//we want to add all the non-tree edges, in direction from ancestor to descendant.
-				if (entry_time[v.id] >= entry_time[root.id]) {
-					back_edges[root.id].push_back(v);
+				vertex_t v = *it;
+				if (!visited[v.id]) {
+					visited[v.id] = 1;
+					parent[v.id] = u;
+					entry_time[v.id] = ++current_time;
+					vert[current_time] = v;
+					dfs_stack.push({v, G.adj_list[v.id].begin()});
+				} else if (v != parent[u.id]) {
+					if (entry_time[v.id] >= entry_time[u.id]) {
+						back_edges[u.id].push_back(v);
+					}
 				}
+				++it;
 			}
 		}
-
-		exit_time[root.id] = current_time;
 	}
 
 	ear_it_t
@@ -127,18 +144,19 @@ public:
 		return curr_ears;
 	}
 
-	void ear_decompose()
+	void
+	ear_decompose()
 	{
 		int total_back_edges = 0;
 		int current_time = 0;
 		for (int i = 0; i < G.N; ++i) {
 			if (!visited[i]) {
-				dfs({i}, ++current_time);
+				dfs({i}, current_time);
 			}
 			total_back_edges += back_edges[i].size();
 		}
 		ear_decomposition.reserve(total_back_edges + 5); 
-//		std::cerr << G.N << ' ' << current_time << std::endl;
+		//		std::cerr << G.N << ' ' << current_time << std::endl;
 		assert(current_time == G.N);
 
 		ear_decomposition.push_back({});
@@ -159,8 +177,8 @@ int main()
 {
 	using namespace std;
 	ios_base::sync_with_stdio(false);
-//	freopen("ear.in", "r", stdin);
-//	freopen("ear.out", "w", stdout);
+	//	freopen("ear.in", "r", stdin);
+	//	freopen("ear.out", "w", stdout);
 
 	int N, M;
 	scanf("%d%d", &N, &M);
@@ -182,7 +200,7 @@ int main()
 	 */
 
 	auto finish = chrono::steady_clock::now();
-    auto int_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
+	auto int_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
 
 	cerr << "computed ear decomposition in " 
 		<< int_ms.count() << " milliseconds" << endl;
@@ -193,19 +211,19 @@ int main()
 	 * this is useful to test any changes we make to algorithm,
 	 * so I'm leaving it on here.
 	 */
-//	if (vec.size() > 2) {
-//		cout << -1 << endl;
-//		return 0;
-//	}
-//	cout << vec[1].size() << endl;
-//	for (auto it = vec[1].rbegin(); it != vec[1].rend(); ++it) {
-//		auto p = *it;
-//		cout << p.size() << ' ';
-//		for (auto &e : p) {
-//			cout << e.u.id + 1 << ' ';
-//		}
-//		cout << p.rbegin()->v.id + 1 << '\n';
-//	}
+	//	if (vec.size() > 2) {
+	//		cout << -1 << endl;
+	//		return 0;
+	//	}
+	//	cout << vec[1].size() << endl;
+	//	for (auto it = vec[1].rbegin(); it != vec[1].rend(); ++it) {
+	//		auto p = *it;
+	//		cout << p.size() << ' ';
+	//		for (auto &e : p) {
+	//			cout << e.u.id + 1 << ' ';
+	//		}
+	//		cout << p.rbegin()->v.id + 1 << '\n';
+	//	}
 
 	int conn_id = 1;
 	for (auto &two_conn : vec) {
