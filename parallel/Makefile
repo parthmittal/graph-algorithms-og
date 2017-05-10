@@ -1,5 +1,12 @@
 NVCC=nvcc
-OBJS=atomic_queue.o
+OBJECTS=atomic_queue.o
+
+.PHONY: all clean
+
+all : $(OBJECTS)
 
 $(OBJECTS) : %.o : %.cu %.cuh
 	$(NVCC) -c $< -o $@
+
+clean :
+	rm -f $(OBJECTS)
