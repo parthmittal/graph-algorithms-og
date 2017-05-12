@@ -1,13 +1,15 @@
 CXX = clang++
-CXXFLAGS = -Wall -std=c++14 -O3
+override CXXFLAGS += -Wall -std=c++14 -O3
 
-OBJECTS = ear-decomposition-dfs.o graph.o test.o
+OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o
 EXEC = test
 
 .PHONY: clean all
 
 all : $(EXEC)
 
+#This is required because some .cpp files
+#don't have corresponding headers.
 .SECONDEXPANSION:
 $(OBJECTS) : %.o : %.cpp $$(wildcard $$*.hpp)
 	$(CXX) -c $(CXXFLAGS) $< -o $@
