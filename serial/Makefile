@@ -1,14 +1,15 @@
 CXX = clang++
 CXXFLAGS = -Wall -std=c++14 -O3
 
-OBJECTS = ear-decomposition-dfs.o graph.o
-EXEC = ear-decomposition
+OBJECTS = ear-decomposition-dfs.o graph.o test.o
+EXEC = test
 
 .PHONY: clean all
 
 all : $(EXEC)
 
-$(OBJECTS) : %.o : %.cpp %.hpp
+.SECONDEXPANSION:
+$(OBJECTS) : %.o : %.cpp $$(wildcard $$*.hpp)
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 $(EXEC) : % : $(OBJECTS)
