@@ -3,167 +3,109 @@
 #include <iostream>
 #include <chrono>
 #include <stack>
+#include "ear-decomposition-dfs.hpp"
+#include "graph.hpp"
 
-struct vertex_t {
-	int id;
+two_connected_prop::two_connected_prop(const undirected_graph_t &G)
+	:G(G)
+{
+	visited.resize(G.N);
+	parent.resize(G.N);
+	back_edges.resize(G.N);
+	entry_time.resize(G.N);
+	exit_time.resize(G.N);
+	vert.resize(G.N + 1); //entry times range from 1 to G.N
+	visited_ear_decomposition.resize(G.N);
+	ears_of.resize(G.N);
+}
 
-	bool operator==(const vertex_t &other) const
-	{
-		return id == other.id;
-	}
+void
+two_connected_prop::dfs(vertex_t root, int &current_time)
+{
+	std::stack<dfs_stack_elem_t> dfs_stack;
+	dfs_stack.push({root, G.adj_list[root.id].begin()});
+	visited[root.id] = 1;
+	entry_time[root.id] = ++current_time;
+	vert[current_time] = root;
 
-	bool operator!=(const vertex_t &other) const
-	{
-		return id != other.id;
-	}
-};
-
-struct edge_t {
-	vertex_t u, v;
-};
-
-typedef std::vector<edge_t> path_t;
-
-struct undirected_graph_t {
-	undirected_graph_t (int N)
-	{
-		this -> N = N;
-		adj_list.resize(N);
-	}
-
-	void add_edge (vertex_t u, vertex_t v)
-	{
-		adj_list[u.id].push_back(v);
-		adj_list[v.id].push_back(u);
-	}
-	
-	int N;
-	std::vector< std::vector< vertex_t > > adj_list;
-};
-
-/* it was rather ugly to keep passing around parameters,
- * and global variables are even uglier,
- * so I am using a wrapper class for this.
- */
-class two_connected_prop {
-public:
-	undirected_graph_t G;
-	std::vector<int> visited;
-	std::vector<vertex_t> parent;
-	std::vector< std::vector<vertex_t> > back_edges;
-	std::vector<int> entry_time, exit_time;
-	std::vector<vertex_t> vert;
-
-	std::vector<int> visited_ear_decomposition;
-	std::vector< std::vector<path_t> > ear_decomposition; //each element is at least 2-edge-connected.
-	std::vector<int> ears_of;
-
-	two_connected_prop(const undirected_graph_t &G)
-		:G(G)
-	{
-		visited.resize(G.N);
-		parent.resize(G.N);
-		back_edges.resize(G.N);
-		entry_time.resize(G.N);
-		exit_time.resize(G.N);
-		vert.resize(G.N + 1); //entry times range from 1 to G.N
-		visited_ear_decomposition.resize(G.N);
-		ears_of.resize(G.N);
-	}
-
-	struct dfs_stack_elem_t {
-		vertex_t u;
-		std::vector<vertex_t>::iterator it;
-	};
-
-	void
-	dfs(vertex_t root, int &current_time)
-	{
-		std::stack<dfs_stack_elem_t> dfs_stack;
-		dfs_stack.push({root, G.adj_list[root.id].begin()});
-		visited[root.id] = 1;
-		entry_time[root.id] = ++current_time;
-		vert[current_time] = root;
-
-		while(!dfs_stack.empty()) {
-			vertex_t u = dfs_stack.top().u;
-			std::vector<vertex_t>::iterator &it = dfs_stack.top().it;
-			if (it == G.adj_list[u.id].end()) {
-				dfs_stack.pop();
-				exit_time[u.id] = current_time;
-			} else {
-				vertex_t v = *it;
-				if (!visited[v.id]) {
-					visited[v.id] = 1;
-					parent[v.id] = u;
-					entry_time[v.id] = ++current_time;
-					vert[current_time] = v;
-					dfs_stack.push({v, G.adj_list[v.id].begin()});
-				} else if (v != parent[u.id]) {
-					if (entry_time[v.id] >= entry_time[u.id]) {
-						back_edges[u.id].push_back(v);
-					}
-				}
-				++it;
-			}
-		}
-	}
-
-	int
-	find_ears(vertex_t u, int parent_ears)
-	{
-		int curr_ears;
-		if (!visited_ear_decomposition[u.id]) {
-			ear_decomposition.push_back({});
-			curr_ears = ear_decomposition.end() - 1 - ear_decomposition.begin();
+	while(!dfs_stack.empty()) {
+		vertex_t u = dfs_stack.top().u;
+		std::vector<vertex_t>::iterator &it = dfs_stack.top().it;
+		if (it == G.adj_list[u.id].end()) {
+			dfs_stack.pop();
+			exit_time[u.id] = current_time;
 		} else {
-			curr_ears = parent_ears;
-		}
-
-		for (vertex_t &v : back_edges[u.id]) {
-			visited_ear_decomposition[u.id] = 1;
-			path_t ear;
-			vertex_t curr = v, prev = u;
-			while(!visited_ear_decomposition[curr.id]) { //break on first vertex already visited.
-				ear.push_back({prev, curr});
-				visited_ear_decomposition[curr.id] = 1;
-				prev = curr;
-				curr = parent[curr.id];
+			vertex_t v = *it;
+			if (!visited[v.id]) {
+				visited[v.id] = 1;
+				parent[v.id] = u;
+				entry_time[v.id] = ++current_time;
+				vert[current_time] = v;
+				dfs_stack.push({v, G.adj_list[v.id].begin()});
+			} else if (v != parent[u.id]) {
+				if (entry_time[v.id] >= entry_time[u.id]) {
+					back_edges[u.id].push_back(v);
+				}
 			}
-			//still have to push edge we used to get to first already
-			//visited vertex to ear.
-			ear.push_back({prev, curr});
-			ear_decomposition[curr_ears].push_back(ear);
+			++it;
 		}
-
-		return curr_ears;
 	}
+}
 
-	void
-	ear_decompose()
-	{
-		int total_back_edges = 0;
-		int current_time = 0;
-		for (int i = 0; i < G.N; ++i) {
-			if (!visited[i]) {
-				dfs({i}, current_time);
-			}
-			total_back_edges += back_edges[i].size();
-		}
-		//std::cerr << G.N << ' ' << current_time << std::endl;
-		assert(current_time == G.N);
-
+int
+two_connected_prop::find_ears(vertex_t u, int parent_ears)
+{
+	int curr_ears;
+	if (!visited_ear_decomposition[u.id]) {
 		ear_decomposition.push_back({});
-		ears_of[vert[1].id] = find_ears(vert[1], 0);
-		for (int i = 2; i <= current_time; ++i) {
-			int u = vert[i].id;
-			int p = parent[u].id;
-			ears_of[u] = find_ears({u}, ears_of[p]);
-		}
-
-		ear_decomposition.erase(ear_decomposition.begin());
+		curr_ears = ear_decomposition.end() - 1 - ear_decomposition.begin();
+	} else {
+		curr_ears = parent_ears;
 	}
-};
+
+	for (vertex_t &v : back_edges[u.id]) {
+		visited_ear_decomposition[u.id] = 1;
+		path_t ear;
+		vertex_t curr = v, prev = u;
+		while(!visited_ear_decomposition[curr.id]) { //break on first vertex already visited.
+			ear.push_back({prev, curr});
+			visited_ear_decomposition[curr.id] = 1;
+			prev = curr;
+			curr = parent[curr.id];
+		}
+		//still have to push edge we used to get to first already
+		//visited vertex to ear.
+		ear.push_back({prev, curr});
+		ear_decomposition[curr_ears].push_back(ear);
+	}
+
+	return curr_ears;
+}
+
+void
+two_connected_prop::ear_decompose()
+{
+	int total_back_edges = 0;
+	int current_time = 0;
+	for (int i = 0; i < G.N; ++i) {
+		if (!visited[i]) {
+			dfs({i}, current_time);
+		}
+		total_back_edges += back_edges[i].size();
+	}
+	//std::cerr << G.N << ' ' << current_time << std::endl;
+	assert(current_time == G.N);
+
+	ear_decomposition.push_back({});
+	ears_of[vert[1].id] = find_ears(vert[1], 0);
+	for (int i = 2; i <= current_time; ++i) {
+		int u = vert[i].id;
+		int p = parent[u].id;
+		ears_of[u] = find_ears({u}, ears_of[p]);
+	}
+
+	ear_decomposition.erase(ear_decomposition.begin());
+}
 
 int main()
 {
