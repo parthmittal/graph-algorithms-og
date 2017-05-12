@@ -56,12 +56,7 @@ public:
 
 	std::vector<int> visited_ear_decomposition;
 	std::vector< std::vector<path_t> > ear_decomposition; //each element is at least 2-edge-connected.
-	/* we need to know the 2-connected-component of
-	 * the parent of arbitrary vertices.
-	 * This ugly type is the easiest solution I could work out
-	 */
-	typedef std::vector< std::vector<path_t> >::iterator ear_it_t;
-	std::vector<ear_it_t> ears_of;
+	std::vector<int> ears_of;
 
 	two_connected_prop(const undirected_graph_t &G)
 		:G(G)
@@ -114,13 +109,13 @@ public:
 		}
 	}
 
-	ear_it_t
-	find_ears(vertex_t u, ear_it_t parent_ears)
+	int
+	find_ears(vertex_t u, int parent_ears)
 	{
-		ear_it_t curr_ears;
+		int curr_ears;
 		if (!visited_ear_decomposition[u.id]) {
 			ear_decomposition.push_back({});
-			curr_ears = ear_decomposition.end() - 1;
+			curr_ears = ear_decomposition.end() - 1 - ear_decomposition.begin();
 		} else {
 			curr_ears = parent_ears;
 		}
@@ -138,7 +133,7 @@ public:
 			//still have to push edge we used to get to first already
 			//visited vertex to ear.
 			ear.push_back({prev, curr});
-			curr_ears->push_back(ear);
+			ear_decomposition[curr_ears].push_back(ear);
 		}
 
 		return curr_ears;
@@ -155,14 +150,11 @@ public:
 			}
 			total_back_edges += back_edges[i].size();
 		}
-		ear_decomposition.reserve(total_back_edges + 5); 
-		//		std::cerr << G.N << ' ' << current_time << std::endl;
+		//std::cerr << G.N << ' ' << current_time << std::endl;
 		assert(current_time == G.N);
 
 		ear_decomposition.push_back({});
-		ear_decomposition.end() - 1;
-		vert[1];
-		ears_of[vert[1].id] = find_ears(vert[1], ear_decomposition.end() - 1);
+		ears_of[vert[1].id] = find_ears(vert[1], 0);
 		for (int i = 2; i <= current_time; ++i) {
 			int u = vert[i].id;
 			int p = parent[u].id;
