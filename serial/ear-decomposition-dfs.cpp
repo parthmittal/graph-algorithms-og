@@ -23,12 +23,19 @@ void
 two_connected_prop::dfs(vertex_t root, int &current_time)
 {
 	std::stack<dfs_stack_elem_t> dfs_stack;
+	#ifdef __DFS_LESS_SPACE__
 	dfs_stack.push({root, G.adj_list[root.id].begin()});
 	visited[root.id] = 1;
 	entry_time[root.id] = ++current_time;
 	vert[current_time] = root;
+	#else // can use O(E) space
+	dfs_stack.push({root, true, -1});
+	#endif // __DFS_LESS_SPACE__
+
 
 	while(!dfs_stack.empty()) {
+		#ifdef __DFS_LESS_SPACE__
+
 		vertex_t u = dfs_stack.top().u;
 		std::vector<vertex_t>::iterator &it = dfs_stack.top().it;
 		if (it == G.adj_list[u.id].end()) {
@@ -49,6 +56,42 @@ two_connected_prop::dfs(vertex_t root, int &current_time)
 			}
 			++it;
 		}
+
+		#else // more space
+
+		vertex_t u = dfs_stack.top().u;
+		bool in = dfs_stack.top().in;
+		int pid = dfs_stack.top().pid;
+		dfs_stack.pop();
+
+		if (in && !visited[u.id]) {
+			visited[u.id] = 1;
+			entry_time[u.id] = ++current_time;
+			parent[u.id] = {pid};
+			vert[current_time] = u;
+			dfs_stack.push({u, false, -1});
+
+			//for (auto &v : G.adj_list[u.id]) {
+			/*
+			 * Iterating the edges in reverse order gives the same
+			 * DFS-tree as the __LESS_SPACE__ variant, so it makes it
+			 * easier to test
+			 */
+			for (auto it = G.adj_list[u.id].rbegin(); it != G.adj_list[u.id].rend(); ++it) {
+				auto v = *it;
+				dfs_stack.push({v, true, u.id});
+			}
+
+		} else if (!in) {
+			exit_time[u.id] = current_time;
+		} else {
+			if (entry_time[pid] < entry_time[u.id]) {
+				//fprintf(stderr, "%d(%d) -> %d(%d)\n", pid, entry_time[pid], u.id, entry_time[u.id]);
+				back_edges[pid].push_back(u);
+			}
+		}
+
+		#endif //__DFS_LESS_SPACE__
 	}
 }
 
@@ -64,6 +107,7 @@ two_connected_prop::find_ears(vertex_t u, int parent_ears)
 	}
 
 	for (vertex_t &v : back_edges[u.id]) {
+//		std::cerr << u.id << ' ' << v.id << std::endl;
 		visited_ear_decomposition[u.id] = 1;
 		path_t ear;
 		vertex_t curr = v, prev = u;

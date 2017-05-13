@@ -23,10 +23,18 @@ public:
 
 	two_connected_prop(const undirected_graph_t &G);
 
+	#ifdef __DFS_LESS_SPACE__
 	struct dfs_stack_elem_t {
 		vertex_t u;
 		std::vector<vertex_t>::iterator it;
 	};
+	#else // can use O(E) space
+	struct dfs_stack_elem_t {
+		vertex_t u;
+		bool in;
+		int pid;
+	};
+	#endif // __DFS_LESS_SPACE__
 
 	void
 	dfs(vertex_t root, int &current_time);
