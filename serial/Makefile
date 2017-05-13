@@ -1,7 +1,8 @@
 CXX = clang++
+CXXFLAGS = -D __TARJAN_LCA__ -D __UNION_BY_RANK__ -D __PATH_COMPRESSION__
 override CXXFLAGS += -Wall -std=c++14 -O3
 
-OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o
+OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o lca.o
 EXEC = test
 
 .PHONY: clean all
