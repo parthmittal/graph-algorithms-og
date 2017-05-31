@@ -4,6 +4,7 @@
 #include <chrono>
 #include <stack>
 #include "ear-decomposition-dfs.hpp"
+#include "ear-decomposition-bfs.hpp"
 #include "graph.hpp"
 
 int main()
@@ -21,8 +22,9 @@ int main()
 		g.add_edge({u - 1}, {v - 1});
 	}
 
-	auto start = chrono::steady_clock::now();
 
+	#ifdef __USE_DFS_TREE__
+	auto start = chrono::steady_clock::now();
 	two_connected_prop T(g);
 	T.ear_decompose();
 
@@ -71,4 +73,17 @@ int main()
 		printf("\n");
 		++conn_id;
 	}
+
+	#else // __USE_DFS_TREE__ is not defined.
+	auto start = chrono::steady_clock::now();
+	two_connected_prop T(g);
+	T.ear_decompose();
+
+	auto finish = chrono::steady_clock::now();
+	auto int_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
+
+	cerr << "computed ear decomposition in " 
+		<< int_ms.count() << " milliseconds" << endl;
+
+	#endif // __USE_DFS_TREE__
 }

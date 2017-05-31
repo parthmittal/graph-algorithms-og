@@ -4,6 +4,7 @@
 #ifndef __EAR_DECOMPOSITION_BFS_hpp__
 #define __EAR_DECOMPOSITION_BFS_hpp__
 
+#ifndef __USE_DFS_TREE__
 class two_connected_prop {
 	const int inf = INT_MAX >> 1;
 
@@ -21,7 +22,8 @@ public:
 	void
 	bfs(vertex_t root);
 
-	void ear_decompose(vertex_t root);
+	void ear_decompose();
 };
+#endif // not __USE_DFS_TREE__
 
 #endif // __EAR_DECOMPOSITION_BFS_hpp__

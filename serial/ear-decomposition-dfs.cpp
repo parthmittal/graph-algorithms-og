@@ -6,6 +6,8 @@
 #include "ear-decomposition-dfs.hpp"
 #include "graph.hpp"
 
+#ifdef __USE_DFS_TREE__
+
 two_connected_prop::two_connected_prop(const undirected_graph_t &G)
 	:G(G), visited(G.N), parent(G.N), back_edges(G.N), entry_time(G.N),
 	 exit_time(G.N), vert(G.N + 1), visited_ear_decomposition(G.N),
@@ -143,3 +145,5 @@ two_connected_prop::ear_decompose()
 
 	ear_decomposition.erase(ear_decomposition.begin());
 }
+
+#endif // __USE_DFS_TREE__

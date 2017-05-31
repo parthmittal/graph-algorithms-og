@@ -4,6 +4,8 @@
 #ifndef __EAR_DECOMPOSITION_DFS_hpp__
 #define __EAR_DECOMPOSITION_DFS_hpp__
 
+#ifdef __USE_DFS_TREE__
+
 class two_connected_prop {
 public:
 	undirected_graph_t G;
@@ -41,5 +43,7 @@ public:
 	void
 	ear_decompose();
 };
+
+#endif // __USE_DFS_TREE__
 
 #endif // __EAR_DECOMPOSITION_DFS_hpp__

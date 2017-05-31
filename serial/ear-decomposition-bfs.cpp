@@ -3,6 +3,8 @@
 #include "ear-decomposition-bfs.hpp"
 #include "lca.hpp"
 
+#ifndef __USE_DFS_TREE__
+
 two_connected_prop::two_connected_prop(const undirected_graph_t &G)
 	:G(G), dist(G.N, inf), parent(G.N), tree_edges(G.N),
 	non_tree_edges(G.N), edges_by_lca_dist(G.N)
@@ -32,7 +34,7 @@ two_connected_prop::bfs(vertex_t root)
 }
 
 void
-two_connected_prop::ear_decompose(vertex_t root)
+two_connected_prop::ear_decompose()
 {
 	using std::vector;
 	using std::pair;
@@ -63,3 +65,5 @@ two_connected_prop::ear_decompose(vertex_t root)
 		}
 	}
 }
+
+#endif // not __USE_DFS_TREE__
