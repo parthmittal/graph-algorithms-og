@@ -13,10 +13,12 @@ struct lca_wrapper {
 
 	lca_wrapper(int N);
 
-	std::vector< std::vector<int> >
-	lca(int root,
-		const std::vector< std::vector<int> > &P,
-		const std::vector< std::vector<int> > &T);
+	void
+	lca(int u,
+			const std::vector< std::vector<int> > &P,
+			const std::vector< std::vector<int> > &T,
+			const std::vector<int> &dist,
+			std::vector<std::vector<std::pair<int, int>>> &edges_by_lca_dist);
 };
 
 #endif // __TARJAN_LCA__

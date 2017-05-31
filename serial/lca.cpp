@@ -7,25 +7,27 @@
 lca_wrapper::lca_wrapper(int N)
 	: ancestor(N), color(N), S(N) {}
 
-std::vector< std::vector<int> >
+void
 lca_wrapper::lca(int u,
 		const std::vector< std::vector<int> > &P,
-		const std::vector< std::vector<int> > &T)
+		const std::vector< std::vector<int> > &T,
+		const std::vector<int> &dist,
+		std::vector<std::vector<std::pair<int, int>>> &edges_by_lca_dist)
 {
-	static std::vector< std::vector<int> > ans = P;
 	ancestor[u] = u;
 	for (const int &v : T[u]) {
-		lca(v, P, T);
+		lca(v, P, T, dist, edges_by_lca_dist);
 		S.join(u, v);
 		ancestor[S.find_set(u)] = u;
 	}
 	color[u] = 1;
 	for (const int &v : P[u]) {
 		if (color[v] == 1) {
-			ans[u][&v - &P[u][0]] = S.find_set(v);
+			int lca = S.find_set(v);
+			int d = dist[lca];
+			edges_by_lca_dist[d].push_back({u, v});
 		}
 	}
-	return ans;
 }
 
 #endif // __TARJAN_LCA__
