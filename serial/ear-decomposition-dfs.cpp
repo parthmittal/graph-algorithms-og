@@ -7,17 +7,10 @@
 #include "graph.hpp"
 
 two_connected_prop::two_connected_prop(const undirected_graph_t &G)
-	:G(G)
-{
-	visited.resize(G.N);
-	parent.resize(G.N);
-	back_edges.resize(G.N);
-	entry_time.resize(G.N);
-	exit_time.resize(G.N);
-	vert.resize(G.N + 1); //entry times range from 1 to G.N
-	visited_ear_decomposition.resize(G.N);
-	ears_of.resize(G.N);
-}
+	:G(G), visited(G.N), parent(G.N), back_edges(G.N), entry_time(G.N),
+	 exit_time(G.N), vert(G.N + 1), visited_ear_decomposition(G.N),
+	 ears_of(G.N)
+{}
 
 void
 two_connected_prop::dfs(vertex_t root, int &current_time)

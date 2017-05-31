@@ -1,8 +1,4 @@
 #include <vector>
-#include <cassert>
-#include <iostream>
-#include <chrono>
-#include <stack>
 #include "graph.hpp"
 
 #ifndef __EAR_DECOMPOSITION_DFS_hpp__
