@@ -38,6 +38,6 @@ echo "using DFS-Tree, with O(E) space on stack"
 do_runs
 
 make clean
-make CXXFLAGS="-D __USE_DFS_TREE -D __DFS_LESS_SPACE__"
+make CXXFLAGS="-D __USE_DFS_TREE__ -D __DFS_LESS_SPACE__"
 echo "using DFS-Tree, with O(V) space on stack"
 do_runs
