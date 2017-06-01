@@ -6,7 +6,7 @@
 
 #ifndef __USE_DFS_TREE__
 class two_connected_prop {
-	const int inf = INT_MAX >> 1;
+	const int inf = __INT32_MAX__ >> 1;
 
 public:
 	undirected_graph_t G;

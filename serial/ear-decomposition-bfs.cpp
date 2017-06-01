@@ -1,5 +1,8 @@
 #include <queue>
 #include <algorithm>
+#include <vector>
+#include <iostream>
+
 #include "ear-decomposition-bfs.hpp"
 #include "lca.hpp"
 
@@ -39,6 +42,7 @@ two_connected_prop::ear_decompose()
 	using std::vector;
 	using std::pair;
 
+	#ifdef __TARJAN_LCA__
 	lca_wrapper L(G.N);
 	for (int i = 0; i < G.N; ++i) {
 		if (dist[i] == inf) {
@@ -46,6 +50,15 @@ two_connected_prop::ear_decompose()
 			L.lca(i, non_tree_edges, tree_edges, dist, edges_by_lca_dist);
 		}
 	}
+	#elif defined(__DP_LCA__)
+	lca_wrapper L;
+	for (int i = 0; i < G.N; ++i) {
+		if (dist[i] == inf) {
+			bfs({i});
+		}
+	}
+	L.lca(non_tree_edges, parent, dist, edges_by_lca_dist);
+	#endif // __TARJAN_LCA__
 
 	vector<int> done(G.N); /*indicates whether tree-edge is used*/
 	for (int d = 0; d < G.N; ++d) {

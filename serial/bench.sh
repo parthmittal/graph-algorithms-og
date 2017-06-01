@@ -23,6 +23,11 @@ g++ -O3 -std=c++14 compress.cpp -o compress
 cd ../serial
 
 make clean
+make CXXFLAGS="-D __DP_LCA__"
+echo "using BFS-Tree, with online DP LCA algorithm" >> log
+do_runs
+
+make clean
 make CXXFLAGS="-D __TARJAN_LCA__ -D __UNION_BY_RANK__ -D __PATH_COMPRESSION__"
 echo "using BFS-Tree, with Tarjan's offline LCA algorithm, with Union by Rank and Path Compression" >> log
 do_runs
