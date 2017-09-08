@@ -14,6 +14,11 @@ struct edge_t {
 	vertex_t u, v;
 };
 
+struct w_edge_t {
+	vertex_t u, v;
+	int w;
+};
+
 typedef std::vector<edge_t> path_t;
 
 struct undirected_graph_t {
@@ -22,6 +27,15 @@ struct undirected_graph_t {
 		
 	int N;
 	std::vector< std::vector< vertex_t > > adj_list;
+};
+
+struct w_undirected_graph_t {
+	w_undirected_graph_t ();
+	void add_vertex();
+	void add_edge(int u, int v, int weight);
+
+	int N;
+	std::vector< std::vector< w_edge_t > > adj_list;
 };
 
 #endif // __GRAPH_hpp__
