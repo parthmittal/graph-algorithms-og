@@ -16,7 +16,12 @@ public:
 	std::vector<vertex_t> vert;
 
 	std::vector<int> visited_ear_decomposition;
-	std::vector< std::vector<path_t> > ear_decomposition; //each element is at least 2-edge-connected.
+	std::vector< std::vector<path_t> > ear_decomposition;
+	/*
+	 * NB: path_t is a vector of edges.
+	 * So each element of ear_decomposition is a vector of ears,
+	 * corresponding to a 2-connected component.
+	 */
 	std::vector<int> ears_of;
 
 	two_connected_prop(const undirected_graph_t &G);
