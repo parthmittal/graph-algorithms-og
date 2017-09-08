@@ -63,13 +63,15 @@ two_connected_prop::ear_decompose()
 	vector<int> done(G.N); /*indicates whether tree-edge is used*/
 	for (int d = 0; d < G.N; ++d) {
 		for (pair<int, int> e : edges_by_lca_dist[d]) {
-			ears.push_back({e});
 			int u = e.first, v = e.second;
+			ears.push_back({});
 			while(dist[u] > d && !done[u]) {
 				done[u] = 1;
 				ears.back().push_back({u, parent[u].id});
 				u = parent[u].id;
 			}
+			reverse(ears.back().begin(), ears.back().end());
+			ears.back().push_back(e);
 			while(dist[v] > d && !done[v]) {
 				done[v] = 1;
 				ears.back().push_back({v, parent[v].id});
