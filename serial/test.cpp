@@ -7,6 +7,7 @@
 #include "ear-decomposition-bfs.hpp"
 #include "graph.hpp"
 #include "bwc_brandes.hpp"
+#include "bwc_our.hpp"
 
 int main()
 {
@@ -40,6 +41,7 @@ int main()
 
 	#else
 		#ifdef __USE_DFS_TREE__
+		compute_bwc(g);
 		auto start = chrono::steady_clock::now();
 		two_connected_prop T(g);
 		T.ear_decompose();

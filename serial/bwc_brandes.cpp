@@ -3,6 +3,8 @@
 #include <queue>
 #include <stack>
 
+#ifdef __BRANDES__
+
 std::vector<double>
 compute_bwc(const undirected_graph_t &G)
 {
@@ -51,3 +53,5 @@ compute_bwc(const undirected_graph_t &G)
 
 	return BC;
 }
+
+#endif // __BRANDES__

@@ -1,8 +1,8 @@
-CXX = clang++
-CXXFLAGS = -D __BRANDES__
+CXX = g++
+CXXFLAGS = -D __USE_DFS_TREE__ -D __OUR__
 override CXXFLAGS += -Wall -std=c++14 -O3
 
-OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o lca.o ear-decomposition-bfs.o bwc_brandes.o
+OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o lca.o ear-decomposition-bfs.o bwc_brandes.o bwc_our.o
 EXEC = test
 
 .PHONY: clean all
