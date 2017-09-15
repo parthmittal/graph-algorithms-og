@@ -41,7 +41,7 @@ int main()
 
 	#else
 		#ifdef __USE_DFS_TREE__
-		compute_bwc(g);
+		bwc_our bwc(g);
 		auto start = chrono::steady_clock::now();
 		two_connected_prop T(g);
 		T.ear_decompose();

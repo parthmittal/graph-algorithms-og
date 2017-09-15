@@ -8,56 +8,61 @@
 
 #include <cassert>
 
-#ifndef __BRANDES__
+#ifdef __OUR__
 
-std::vector<double>
-compute_bwc(const undirected_graph_t &G)
+void
+bwc_our::compute_reduced_graph()
 {
 	using namespace std;
-#ifdef __USE_DFS_TREE__
-	two_connected_prop two(G);
 	two.ear_decompose();
 
-	auto &GED = two.ear_decomposition;
-	if (GED.size() > 1) {
-		assert(0);
-		/*
-		 * TODO: this is situation where G is not 2-connected,
-		 * deal with this at some point
-		 */
-	} else {
-		vector<int> id(G.N);
-		w_undirected_graph_t Gr;
+	/* NB: currently we expect that G is two-connected */
+	assert(two.ear_decomposition.size() == 1);
 
-		auto &ED = GED[0];
-		for (path_t &ear : ED) {
-			assert(ear.size() >= 1);
-			int u = ear[0].u.id, v = ear[0].v.id;
-			int weight = 1;
-			int idx = 1;
-			while(idx < ear.size() && G.adj_list[v].size() < 3) {
-				/* this is true unless v is a start/end point
-				 * for some ear.
-				 */
-				assert(v == ear[idx].u.id);
-				v = ear[idx].v.id;
+	auto &ED = two.ear_decomposition[0];
+	for (path_t &ear : ED) {
+		assert(ear.size() >= 1);
+		int weight = 1, u = ear[0].u.id;
+		for (auto &e : ear) {
+			if (weight > 0 && G.adj_list[e.v.id].size() >= 3) {
+				/* add an edge between u and e.v */
+				int v = e.v.id;
+				if (id[u] == -1) {
+					id[u] = Gr.N;
+					Gr.add_vertex();
+				}
+				if (id[v] == -1) {
+					id[v] = Gr.N;
+					Gr.add_vertex();
+				}
+				Gr.add_edge(id[u], id[v], weight);
+				Gr.add_edge(id[v], id[u], weight);
 
+				cerr << u << ' ' << v << ' ' << weight << endl;
+
+				u = v;
+				weight = 1;
+			} else {
 				++weight;
-				++idx;
 			}
-			if (!id[u]) {
+		}
+		if (u != ear.back().v.id) {
+			int v = ear.back().v.id;
+			if (id[u] == -1) {
+				id[u] = Gr.N;
 				Gr.add_vertex();
-				id[u] = Gr.N - 1;
 			}
-			if (!id[v]) {
+			if (id[v] == -1) {
+				id[v] = Gr.N;
 				Gr.add_vertex();
-				id[v] = Gr.N - 1;
 			}
+
 			Gr.add_edge(id[u], id[v], weight);
+			Gr.add_edge(id[v], id[u], weight);
+
 			cerr << u << ' ' << v << ' ' << weight << endl;
 		}
 	}
-#endif //__USE_DFS_TREE__
 }
 
-#endif //__BRANDES__
+#endif //__OUR__
