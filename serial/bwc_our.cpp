@@ -1,10 +1,12 @@
 #include "bwc_our.hpp"
 #include "ear-decomposition-dfs.hpp"
 #include "graph.hpp"
+#include "sssp.hpp"
 
 #include <queue>
 #include <stack>
 #include <iostream>
+#include <algorithm>
 
 #include <cassert>
 
@@ -28,17 +30,18 @@ bwc_our::compute_reduced_graph()
 				/* add an edge between u and e.v */
 				int v = e.v.id;
 				if (id[u] == -1) {
+					rid[Gr.N] = u;
 					id[u] = Gr.N;
 					Gr.add_vertex();
 				}
 				if (id[v] == -1) {
+					rid[Gr.N] = v;
 					id[v] = Gr.N;
 					Gr.add_vertex();
 				}
 				Gr.add_edge(id[u], id[v], weight);
-				Gr.add_edge(id[v], id[u], weight);
 
-				cerr << u << ' ' << v << ' ' << weight << endl;
+				cerr << id[u] << ' ' << id[v] << ' ' << weight << endl;
 
 				u = v;
 				weight = 1;
@@ -49,20 +52,48 @@ bwc_our::compute_reduced_graph()
 		if (u != ear.back().v.id) {
 			int v = ear.back().v.id;
 			if (id[u] == -1) {
+				rid[Gr.N] = u;
 				id[u] = Gr.N;
 				Gr.add_vertex();
 			}
 			if (id[v] == -1) {
+				rid[Gr.N] = v;
 				id[v] = Gr.N;
 				Gr.add_vertex();
 			}
 
 			Gr.add_edge(id[u], id[v], weight);
-			Gr.add_edge(id[v], id[u], weight);
 
-			cerr << u << ' ' << v << ' ' << weight << endl;
+			cerr << id[u] << ' ' << id[v] << ' ' << weight << endl;
 		}
 	}
+
+	cerr << "reduced graph constructed" << endl;
 }
 
+	void
+bwc_our::forward_phase_reduced_graph()
+{
+	using namespace std;
+	dist.resize(Gr.N);
+	num_paths.resize(Gr.N);
+	inorder.resize(Gr.N);
+	parents.resize(Gr.N);
+
+	for (int i = 0; i < Gr.N; ++i) {
+		stack<int> S;
+		sssp(i, Gr, S, dist[i], num_paths[i], parents[i]);
+		while(!S.empty()) {
+			inorder[i].push_back(S.top());
+			S.pop();
+		}
+		reverse(inorder[i].begin(), inorder[i].end());
+
+		fprintf(stderr, "source is (%d)\n", rid[i]);
+		for (int j = 0; j < Gr.N; ++j) {
+			fprintf(stderr, "%d: (%d, %lld) ", j, dist[i][j], num_paths[i][j]);
+		}
+		fprintf(stderr, "\n");
+	}
+}
 #endif //__OUR__
