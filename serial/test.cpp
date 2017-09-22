@@ -43,6 +43,11 @@ int main()
 		#ifdef __USE_DFS_TREE__
 		bwc_our bwc(g);
 		bwc.forward_phase_reduced_graph();
+
+		for (int i = 0; i < g.N; ++i) {
+			bwc.sim_forward_phase(i);
+		}
+
 		auto start = chrono::steady_clock::now();
 		two_connected_prop T(g);
 		T.ear_decompose();

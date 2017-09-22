@@ -14,6 +14,8 @@ public:
 	std::vector<int> rid;
 	two_connected_prop two;
 	w_undirected_graph_t Gr;
+	std::vector<int> leftV, rightV;
+	std::vector<int> distL, distR;
 
 	std::vector< std::vector<int> >        dist;
 	std::vector< std::vector<long long > > num_paths;
@@ -23,9 +25,11 @@ public:
 
 	void compute_reduced_graph();
 	void forward_phase_reduced_graph();
+	void sim_forward_phase(int u);
 
 	bwc_our(const undirected_graph_t &G)
-		:G(G), id(G.N, -1), rid(G.N), two(G), Gr()
+		:G(G), id(G.N, -1), rid(G.N), two(G), Gr(), leftV(G.N), rightV(G.N),
+		distL(G.N), distR(G.N)
 	{
 		compute_reduced_graph();
 	}

@@ -25,6 +25,7 @@ bwc_our::compute_reduced_graph()
 	for (path_t &ear : ED) {
 		assert(ear.size() >= 1);
 		int weight = 1, u = ear[0].u.id;
+		vector<int> active;
 		for (auto &e : ear) {
 			if (weight > 0 && G.adj_list[e.v.id].size() >= 3) {
 				/* add an edge between u and e.v */
@@ -41,11 +42,24 @@ bwc_our::compute_reduced_graph()
 				}
 				Gr.add_edge(id[u], id[v], weight);
 
+				int temp = 1;
+				for (auto &w : active) {
+					/* these are all the vertices between u and v
+					 * on this ear */
+					leftV[w] = u;
+					rightV[w] = v;
+					distL[w] = temp;
+					distR[w] = weight - temp;
+					++temp;
+				}
+				active.clear();
+
 				cerr << id[u] << ' ' << id[v] << ' ' << weight << endl;
 
 				u = v;
 				weight = 1;
 			} else {
+				active.push_back(e.v.id);
 				++weight;
 			}
 		}
@@ -64,6 +78,18 @@ bwc_our::compute_reduced_graph()
 
 			Gr.add_edge(id[u], id[v], weight);
 
+			int temp = 1;
+			for (auto &w : active) {
+				/* these are all the vertices between u and v
+				 * on this ear */
+				leftV[w] = u;
+				rightV[w] = v;
+				distL[w] = temp;
+				distR[w] = weight - temp;
+				++temp;
+			}
+			active.clear();
+
 			cerr << id[u] << ' ' << id[v] << ' ' << weight << endl;
 		}
 	}
@@ -71,7 +97,7 @@ bwc_our::compute_reduced_graph()
 	cerr << "reduced graph constructed" << endl;
 }
 
-	void
+void
 bwc_our::forward_phase_reduced_graph()
 {
 	using namespace std;
@@ -96,4 +122,21 @@ bwc_our::forward_phase_reduced_graph()
 		fprintf(stderr, "\n");
 	}
 }
+
+void
+bwc_our::sim_forward_phase(int u)
+{
+	using namespace std;
+	if (G.adj_list[u].size() < 2) {
+		/* not biconnected, something is wrong */
+		assert(0);
+	} else if (G.adj_list[u].size() >= 3) {
+		/* should be a part of reduced graph */
+		assert(id[u] != -1);
+	} else {
+		cerr << u << ' ' << leftV[u] << ' ' << rightV[u] << ' '
+			<< distL[u] << ' ' << distR[u] << endl;
+	}
+}
+
 #endif //__OUR__
