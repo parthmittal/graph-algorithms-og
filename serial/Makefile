@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -D __USE_DFS_TREE__ -D __OUR__
 override CXXFLAGS += -Wall -std=c++14 -O3
 
-OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o lca.o ear-decomposition-bfs.o bwc_brandes.o bwc_our.o sssp.o
+OBJECTS = ear-decomposition-dfs.o graph.o test.o union-find.o lca.o ear-decomposition-bfs.o bwc_brandes.o bwc_our.o sssp.o count-sort.o
 EXEC = test
 
 .PHONY: clean all

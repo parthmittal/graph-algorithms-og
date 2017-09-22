@@ -17,7 +17,7 @@ struct queue_element_t {
 };
 
 void
-sssp(int source, const w_undirected_graph_t &G, std::stack<int> &S,
+sssp(int source, const w_undirected_graph_t &G, std::vector<int> &S,
 		std::vector<int> &dist, std::vector<ll> &num_paths,
 		std::vector< std::vector<int> > &P)
 {
@@ -50,7 +50,7 @@ sssp(int source, const w_undirected_graph_t &G, std::stack<int> &S,
 			/* have we relaxed edges leaving curr.v? */
 			if (!popped[curr.v]) {
 				popped[curr.v] = 1;
-				S.push(curr.v);
+				S.push_back(curr.v);
 				for (auto &e : G.adj_list[curr.v]) {
 					int v = e.v.id;
 					int w = dist[curr.v] + e.w;
