@@ -1,0 +1,49 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage[colorlinks = true,
+            linkcolor = blue,
+            urlcolor  = blue,
+            citecolor = blue,
+            anchorcolor = blue]{hyperref}
+\newcommand{\MYhref}[3][blue]{\href{#2}{\color{#1}{#3}}}%
+\usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{marginnote}
+\usepackage{tikz} \usepackage{parskip}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsthm}
+
+\title{Betweenness Centrality}
+\author{Parth Mittal \\
+		\href{mailto:parth15069@iiitd.ac.in}{parth15069@iiitd.ac.in}}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\DeclarePairedDelimiter\card{\mid}{\mid}
+\DeclarePairedDelimiter\paren{(}{)}
+\newcommand{\ttt}[1]{\texttt{#1}}
+\newcommand{\bigO}[1]{O\left({#1}\right)}
+
+% Better table padding
+\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+\maketitle
+\input{eardecompose.tex}
+\input{reducegraph.tex}
+\input{brandesreduced.tex}
+\input{simbrandes.tex}
+
+\bibliographystyle{abbrv}
+\bibliography{references}
+\end{document}

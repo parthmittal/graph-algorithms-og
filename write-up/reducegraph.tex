@@ -1,0 +1,49 @@
+\subsection{Computing the reduced graph}
+The main idea is to collapse away the vertices with degree~$2$.
+We use the ear decomposition computed in \ref{ED} for bookkeeping.
+
+The reduced graph is an weighted undirected graph, and for each
+edge, we store its endpoints $u$ and $v$, a weight $w$, and two additional
+vertices $u'$ and $v'$ (more on this below).
+Denote the reduced graph by $G^r$.
+
+For every ear in the ear decomposition, there are two cases.
+\begin{enumerate}[I]
+	\item
+		The endpoints of the ear have degree~$\geq 3$. Then we traverse the
+		vertices of the ear along the edges of the ear. 
+		Define for every vertex $v$: $\ttt{next}(v)$ as the first vertex
+		after~$v$ in this traversal which has degree~$\geq 3$.
+		Let $w$ be the number of edges between $v$ and $\ttt{next}(v)$ in
+		the traversal, $p$ be the vertex just after $v$ in the traversal,
+		and $q$ be the vertex just before $\ttt{next}(v)$ in the traversal.
+
+		Then we add the edge $e = \left\{ v, \ttt{next}(v), w, p, q \right\}$
+		to $G^r$.
+		It is natual to be curious about the reason for this shenanigan
+		at this point.
+		The main idea is that every time we use the edge~$e$ in a
+		shortest path, we will ``open'' it back up,
+		and require the immediate predecessor of
+		$v$ (which is $p$) when we travel along $e$, and similar for
+		$\ttt{next}(v)$ (which is $q$).
+		Note that any vertex $u$ between $v$ and $\ttt{next}(v)$
+		necessarily has degree~$2$, which means once we know which direction
+		we traverse $e$ in to get to $u$, it is simply a matter of looking
+		up the corresponding neighbour in the (unique) ear $u$ belongs to.
+
+		Also, define the functions $\ttt{left}$ and $\ttt{right}$ on
+		every vertex in $V(G) \setminus V(G^r)$ as follows:
+		For every vertex~$u$ on the path from $v$ to $\ttt{next}(v)$,
+		put $\ttt{left}(u) = v$, and $\ttt{right}(u) = \ttt{next}(v)$.
+		It is also convenient to define and store $d_L(u)$ as the distance
+		from $u$ to $v$, and the $d_R(u)$ as the distance from $u$ to
+		$\ttt{next}(v)$.
+	\item
+		The endpoints of the ear have degree~$2$.  This is the same as
+		the previous case, we just assume the endpoints have degree~$3$,
+		and proceed as above.
+\end{enumerate}
+
+It should be noted that $G^r$ is a multi-graph, but importantly, the
+construction above does not use the same edge from $G$ twice.
