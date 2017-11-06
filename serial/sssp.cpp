@@ -9,6 +9,7 @@
 struct queue_element_t {
 	int dist;
 	int u, v;
+	int p;
 
 	bool operator>(const queue_element_t &other) const
 	{
@@ -17,7 +18,7 @@ struct queue_element_t {
 };
 
 void
-sssp(int source, const w_undirected_graph_t &G, std::vector<int> &S,
+sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 		std::vector<int> &dist, std::vector<ll> &num_paths,
 		std::vector< std::vector<int> > &P)
 {
@@ -33,7 +34,7 @@ sssp(int source, const w_undirected_graph_t &G, std::vector<int> &S,
 
 	dist[source] = 0;
 	num_paths[source] = 1;
-	dfq.push({0, -1, source});
+	dfq.push({0, -1, source, -1});
 
 	while(!dfq.empty()) {
 		auto curr = dfq.top();
@@ -42,8 +43,7 @@ sssp(int source, const w_undirected_graph_t &G, std::vector<int> &S,
 		if (curr.dist == dist[curr.v]) {
 			/* this is a shortest path to v */
 			if (curr.u != -1) {
-				cerr << curr.u << ' ' << curr.v << ' ' << curr.dist << endl;
-				P[curr.v].push_back(curr.u);
+				P[curr.v].push_back(curr.p);
 				num_paths[curr.v] += num_paths[curr.u];
 			}
 
@@ -56,7 +56,7 @@ sssp(int source, const w_undirected_graph_t &G, std::vector<int> &S,
 					int w = dist[curr.v] + e.w;
 					if (dist[v] == -1 || w <= dist[v]) {
 						dist[v] = w;
-						dfq.push({w, curr.v, v});
+						dfq.push({w, curr.v, v, e.p});
 					}
 				}
 			}

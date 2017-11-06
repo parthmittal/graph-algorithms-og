@@ -42,10 +42,10 @@ int main()
 	#else
 		#ifdef __USE_DFS_TREE__
 		bwc_our bwc(g);
-		bwc.forward_phase_reduced_graph();
+		bwc.sim_brandes_all();
 
-		for (int i = 0; i < g.N; ++i) {
-			bwc.sim_forward_phase(i);
+		for (int i = 0; i < N; ++i) {
+			printf("%F\n", bwc.bwc[i]);
 		}
 
 		auto start = chrono::steady_clock::now();

@@ -1,6 +1,7 @@
 #include <vector>
 #include <utility>
 #include <cassert>
+#include <iostream>
 #include "count-sort.hpp"
 
 typedef std::pair<int, int> pii;
