@@ -60,8 +60,7 @@ int main()
 		auto finish = chrono::steady_clock::now();
 		auto int_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
 
-		cerr << "computed ear decomposition in "
-			<< int_ms.count() << " milliseconds" << endl;
+		cerr << "computed bwc in " << int_ms.count() << " milliseconds" << endl;
 
 		auto vec = T.ear_decomposition;
 		/* code used to print output in format for asc24b
@@ -85,16 +84,16 @@ int main()
 
 		int conn_id = 1;
 		for (auto &two_conn : vec) {
-			printf("component %d\n", conn_id);
+			fprintf(stderr, "component %d\n", conn_id);
 			int ear_id = 1;
 			for (auto &ear : two_conn) {
-				printf("ear %d\n", ear_id);
+				fprintf(stderr, "ear %d\n", ear_id);
 				for (auto &e : ear) {
-					printf("\t%d -> %d\n", e.u.id, e.v.id);
+					fprintf(stderr, "\t%d -> %d\n", e.u.id, e.v.id);
 				}
 				++ear_id;
 			}
-			printf("\n");
+			fprintf(stderr, "\n");
 			++conn_id;
 		}
 

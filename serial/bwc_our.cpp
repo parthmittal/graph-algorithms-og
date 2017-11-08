@@ -25,19 +25,6 @@ bwc_our::add_vertex_reduced_graph(int v)
 	}
 }
 
-#define trace(...) __f(#__VA_ARGS__, __VA_ARGS__)
-template <typename Arg1>
-void __f(const char* name, Arg1&& arg1) {
-	std::cerr << name << " : " << arg1 << std::endl;
-}
-template <typename Arg1, typename... Args>
-void __f(const char* names, Arg1&& arg1, Args&&... args){
-	const char* comma = strchr(names + 1, ',');
-	std::cerr.write(names, comma - names) << " : " << arg1 << " | ";
-	__f(comma + 1, args...);
-}
-
-
 void
 bwc_our::compute_reduced_graph()
 {
@@ -208,30 +195,22 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			int d1 = distL[u] + Lrv.dist[v];
 			int d2 = distR[u] + Rrv.dist[w];
 			if (d1 <= d2) {
-				trace(u, v, rid[v], d1);
-				trace(Lrv.parents[v].size(), v, P[v].size());
 				SET_DISTANCE(rid[v], d1, Lrv.num_paths[v], Lrv.parents[v]);
-				trace(v, P[v].size());
 				++i;
 			} else {
-				trace(u, w, rid[w], d2);
-				trace(Rrv.parents[w].size(), w, P[w].size());
 				SET_DISTANCE(rid[w], d2, Rrv.num_paths[w], Rrv.parents[w]);
-				trace(w, P[w].size());
 				++j;
 			}
 		}
 		while(i < L.size()) {
 			int v = L[i];
 			int d1 = distL[u] + Lrv.dist[v];
-			trace(u, v, rid[v], d1);
 			SET_DISTANCE(rid[v], d1, Lrv.num_paths[v], Lrv.parents[v]);
 			++i;
 		}
 		while(j < R.size()) {
 			int w = R[j];
 			int d2 = distR[u] + Rrv.dist[w];
-			trace(u, w, rid[w], d2);
 			SET_DISTANCE(rid[w], d2, Rrv.num_paths[w], Rrv.parents[w]);
 			++j;
 		}
@@ -307,11 +286,6 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 		assert(dist[i] < G.N);
 	}
 	S = counting_sort(S);
-	fprintf(stderr, "with source %d(%d)\n", u, id[u]);
-	for (auto &v : S) {
-		fprintf(stderr, "(%d, %d, %lld) ", v.first, v.second, num_paths[v.first]);
-	}
-	fprintf(stderr, "\n");
 	reverse(S.begin(), S.end());
 
 	/* We also need for each vertex v the "parents" of v,
@@ -346,20 +320,11 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 		}
 
 		if (v != u) {
-			if (par_sum != num_paths[v]) {
-				fprintf(stderr, "%d(%d) -> %d(%d)\n", u, id[u], v, id[v]);
-				for (auto &p : P[v]) {
-					fprintf(stderr, "%d ", p);
-				}
-				fprintf(stderr, "\n");
-			}
 			bwc[v] += delta[v];
 		} else {
 			assert(par_sum == 0);
 		}
 	}
-
-	fprintf(stdout, "Completed sim_brandes for node (%d)\n", u);
 }
 
 rgraph_vinfo bwc_our::get_node_info(int u)
