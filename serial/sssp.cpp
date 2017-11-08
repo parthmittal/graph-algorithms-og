@@ -56,7 +56,7 @@ sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 					int w = dist[curr.v] + e.w;
 					if (dist[v] == -1 || w <= dist[v]) {
 						dist[v] = w;
-						dfq.push({w, curr.v, v, e.p});
+						dfq.push({w, curr.v, v, e.q});
 					}
 				}
 			}

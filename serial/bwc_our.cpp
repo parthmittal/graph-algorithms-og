@@ -25,6 +25,19 @@ bwc_our::add_vertex_reduced_graph(int v)
 	}
 }
 
+#define trace(...) __f(#__VA_ARGS__, __VA_ARGS__)
+template <typename Arg1>
+void __f(const char* name, Arg1&& arg1) {
+	std::cerr << name << " : " << arg1 << std::endl;
+}
+template <typename Arg1, typename... Args>
+void __f(const char* names, Arg1&& arg1, Args&&... args){
+	const char* comma = strchr(names + 1, ',');
+	std::cerr.write(names, comma - names) << " : " << arg1 << " | ";
+	__f(comma + 1, args...);
+}
+
+
 void
 bwc_our::compute_reduced_graph()
 {
@@ -64,18 +77,19 @@ bwc_our::compute_reduced_graph()
 
 				int p = joint_start_edge.v.id;
 				int q = e.u.id;
-				fprintf(stderr, "%d(%d) <%d--%d> %d(%d)\n",
-						u, id[u], p, q, v, id[v]);
+				//fprintf(stderr, "%d(%d) <%d--(%d)--%d> %d(%d)\n",
+				//		u, id[u], p, weight, q, v, id[v]);
 				Gr.add_edge(id[u], id[v], p, q, active, weight);
 
 				int temp = 1;
 				for (auto &w : active) {
 					/* these are all the vertices between u and v
 					 * on this ear */
-					leftV[w] = u;
+					leftV[w]  = u;
 					rightV[w] = v;
-					distL[w] = temp;
-					distR[w] = weight - temp;
+					distL[w]  = temp;
+					distR[w]  = weight - temp;
+					//fprintf(stderr, "%d %d %d\n", w, distL[w], distR[w]);
 					++temp;
 				}
 				active.clear();
@@ -109,6 +123,9 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 
 	#define SET_DISTANCE(v, distance, paths, parents)                \
 	do {                                                             \
+		if (v == leftV[u] || v == rightV[u]) {                       \
+			continue;                                                \
+		}                                                            \
 		if (dist[v] == -1 || distance < dist[v]) {                   \
 			dist[v]      = distance;                                 \
 			num_paths[v] = 0;                                        \
@@ -155,14 +172,35 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			}
 		}
 	} else {
+		//fprintf(stderr, "(%d) <(%d)-%d-(%d)> (%d)\n",
+		//		leftV[u], distL[u], u, distR[u], rightV[u]);
 		const vector<int> &L = Lrv.inorder, &R = Rrv.inorder;
 
 		num_paths[u] = 1;
 		dist[u] = 0;
-		num_paths[leftV[u]]  = 1;
-		num_paths[rightV[u]] = 1;
-		dist[leftV[u]]  = distL[u];
-		dist[rightV[u]] = distR[u];
+		if (leftV[u] != rightV[u]) {
+			dist[leftV[u]]  = distL[u];
+			dist[rightV[u]] = distR[u];
+
+			num_paths[leftV[u]]  = 1;
+			num_paths[rightV[u]] = 1;
+
+			P[leftV[u]].push_back(Lrv.p);
+			P[rightV[u]].push_back(Lrv.q);
+		} else if (leftV[u] == rightV[u]) {
+			int v = leftV[u];
+			int d1 = distL[u], d2 = distR[u];
+			dist[v] = min(d1, d2);
+
+			if (d1 == dist[v]) {
+				P[v].push_back(Lrv.p);
+				num_paths[v]++;
+			} 
+			if (d2 == dist[v]) {
+				P[v].push_back(Lrv.q);
+				num_paths[v]++;
+			}
+		}
 
 		size_t i = 0, j = 0;
 		while(i < L.size() && j < R.size()) {
@@ -170,27 +208,38 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			int d1 = distL[u] + Lrv.dist[v];
 			int d2 = distR[u] + Rrv.dist[w];
 			if (d1 <= d2) {
+				trace(u, v, rid[v], d1);
+				trace(Lrv.parents[v].size(), v, P[v].size());
 				SET_DISTANCE(rid[v], d1, Lrv.num_paths[v], Lrv.parents[v]);
+				trace(v, P[v].size());
 				++i;
 			} else {
+				trace(u, w, rid[w], d2);
+				trace(Rrv.parents[w].size(), w, P[w].size());
 				SET_DISTANCE(rid[w], d2, Rrv.num_paths[w], Rrv.parents[w]);
+				trace(w, P[w].size());
 				++j;
 			}
 		}
 		while(i < L.size()) {
 			int v = L[i];
 			int d1 = distL[u] + Lrv.dist[v];
+			trace(u, v, rid[v], d1);
 			SET_DISTANCE(rid[v], d1, Lrv.num_paths[v], Lrv.parents[v]);
 			++i;
 		}
 		while(j < R.size()) {
 			int w = R[j];
 			int d2 = distR[u] + Rrv.dist[w];
+			trace(u, w, rid[w], d2);
 			SET_DISTANCE(rid[w], d2, Rrv.num_paths[w], Rrv.parents[w]);
 			++j;
 		}
 
 		for (int i = 0; i < G.N; ++i) {
+			if (dist[i] != -1) {
+				continue;
+			}
 			if (id[i] == -1) {
 				/* not in the reduced graph.
 				 * NB: we don't care about this nodes parents, since
@@ -236,7 +285,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 					}
 				}
 			} else {
-				assert(dist[i] != -1);
+				assert(0);
 			}
 		}
 
@@ -258,12 +307,12 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 		assert(dist[i] < G.N);
 	}
 	S = counting_sort(S);
-	reverse(S.begin(), S.end());
 	fprintf(stderr, "with source %d(%d)\n", u, id[u]);
 	for (auto &v : S) {
 		fprintf(stderr, "(%d, %d, %lld) ", v.first, v.second, num_paths[v.first]);
 	}
 	fprintf(stderr, "\n");
+	reverse(S.begin(), S.end());
 
 	/* We also need for each vertex v the "parents" of v,
 	 * which is a list of all the vertices that are adjacent
@@ -277,6 +326,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 	vector<double> delta(G.N);
 	for (auto &x : S) {
 		int v = x.first;
+		ll par_sum = 0;
 		if (id[v] == -1) {
 			/* not in the reduced graph */
 			for (auto &e : G.adj_list[v]) {
@@ -284,17 +334,28 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 				if (dist[w] + 1 == dist[v]) {
 					/* w is a parent of v */
 					delta[w] += ((1 + delta[v]) * num_paths[w]) / num_paths[v];
+					par_sum += num_paths[w];
 				}
 			}
 		} else {
 			/* in reduced graph, parents are already known */
 			for (auto &w : P[v]) {
 				delta[w] += ((1 + delta[v]) * num_paths[w]) / num_paths[v];
+				par_sum += num_paths[w];
 			}
 		}
 
 		if (v != u) {
+			if (par_sum != num_paths[v]) {
+				fprintf(stderr, "%d(%d) -> %d(%d)\n", u, id[u], v, id[v]);
+				for (auto &p : P[v]) {
+					fprintf(stderr, "%d ", p);
+				}
+				fprintf(stderr, "\n");
+			}
 			bwc[v] += delta[v];
+		} else {
+			assert(par_sum == 0);
 		}
 	}
 
@@ -347,6 +408,8 @@ void bwc_our::sim_brandes_all()
 			}
 			if (vis[v] == 1) {
 				for (auto &w : e.vids) {
+					info[u].p = e.p;
+					info[u].q = e.q;
 					sim_brandes1(w, info[u], info[v]);
 				}
 			}

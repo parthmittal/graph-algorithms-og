@@ -38,13 +38,13 @@ struct w_edge_t {
 };
 
 struct w_expanded_edge_t : w_edge_t {
-	int p;
+	int p, q;
 	std::vector<int> vids;
-	w_expanded_edge_t(vertex_t u, vertex_t v, int p, std::vector<int> vids,
-			int w)
-		: w_edge_t(u, v, w), p(p), vids(vids) {}
+	w_expanded_edge_t(vertex_t u, vertex_t v, int p, int q,
+			std::vector<int> vids, int w)
+		: w_edge_t(u, v, w), p(p), q(q), vids(vids) {}
 	w_expanded_edge_t()
-		: w_edge_t(), p(0), vids(0) {}
+		: w_edge_t(), p(0), q(0), vids(0) {}
 };
 
 typedef std::vector<edge_t> path_t;
@@ -67,6 +67,7 @@ struct reduced_graph_t {
 };
 
 struct rgraph_vinfo {
+	int p, q;
 	std::vector<int> dist; /* dist[i] <- distance of i from this vertex in Gr */
 	std::vector<long long> num_paths; /* number of shortest paths */
 	std::vector< std::vector<int> > parents;
