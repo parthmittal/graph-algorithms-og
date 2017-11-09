@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 
 #ifndef __GRAPH_hpp__
 #define __GRAPH_hpp__
