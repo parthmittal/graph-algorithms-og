@@ -26,6 +26,7 @@ void reduced_graph_t::add_vertex()
 {
 	++N;
 	adj_list.push_back(std::vector<w_expanded_edge_t>(0));
+	sig.push_back(0);
 }
 
 void

@@ -24,6 +24,12 @@ int main()
 		g.add_edge({u - 1}, {v - 1});
 	}
 
+	int deg_three = 0;
+	for (int i = 0; i < N; ++i) {
+		deg_three += (g.adj_list[i].size() > 2);
+	}
+	fprintf(stderr, "read graph with (%d) vertices with degree > 2\n", deg_three);
+
 	#ifdef __BRANDES__
 	/* no ear decomposition etc. required, we're just testing
 	 * brandes algorithm
@@ -82,20 +88,20 @@ int main()
 		//		cout << p.rbegin()->v.id + 1 << '\n';
 		//	}
 
-		int conn_id = 1;
-		for (auto &two_conn : vec) {
-			fprintf(stderr, "component %d\n", conn_id);
-			int ear_id = 1;
-			for (auto &ear : two_conn) {
-				fprintf(stderr, "ear %d\n", ear_id);
-				for (auto &e : ear) {
-					fprintf(stderr, "\t%d -> %d\n", e.u.id, e.v.id);
-				}
-				++ear_id;
-			}
-			fprintf(stderr, "\n");
-			++conn_id;
-		}
+		//int conn_id = 1;
+		//for (auto &two_conn : vec) {
+		//	fprintf(stderr, "component %d\n", conn_id);
+		//	int ear_id = 1;
+		//	for (auto &ear : two_conn) {
+		//		fprintf(stderr, "ear %d\n", ear_id);
+		//		for (auto &e : ear) {
+		//			fprintf(stderr, "\t%d -> %d\n", e.u.id, e.v.id);
+		//		}
+		//		++ear_id;
+		//	}
+		//	fprintf(stderr, "\n");
+		//	++conn_id;
+		//}
 
 		#else // __USE_DFS_TREE__ is not defined.
 		auto start = chrono::steady_clock::now();

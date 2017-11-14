@@ -31,6 +31,8 @@ bwc_our::compute_reduced_graph()
 	using namespace std;
 	two.ear_decompose();
 
+	cout << two.ear_decomposition.size() << endl;
+
 	/* NB: currently we expect that G is two-connected */
 	assert(two.ear_decomposition.size() == 1);
 
@@ -72,10 +74,12 @@ bwc_our::compute_reduced_graph()
 				for (auto &w : active) {
 					/* these are all the vertices between u and v
 					 * on this ear */
-					leftV[w]  = u;
-					rightV[w] = v;
-					distL[w]  = temp;
-					distR[w]  = weight - temp;
+					leftV[w]      = u;
+					rightV[w]     = v;
+					Gr.sig[id[u]] = 1;
+					Gr.sig[id[v]] = 1;
+					distL[w]      = temp;
+					distR[w]      = weight - temp;
 					//fprintf(stderr, "%d %d %d\n", w, distL[w], distR[w]);
 					++temp;
 				}
@@ -96,7 +100,7 @@ bwc_our::compute_reduced_graph()
 		G.adj_list[ear_start].pop_back();
 		G.adj_list[ear_end].pop_back();
 	}
-	cerr << "constructed reduced graph" << endl;
+	fprintf(stderr, "constructed reduced graph, with %d vertices\n", Gr.N);
 }
 
 void
@@ -153,6 +157,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 				}
 			} else {
 				/* simply "import" values from Lrv */
+				fprintf(stderr, "%d %d\n", i, id[i]);
 				dist[i]      = Lrv.dist[id[i]];
 				num_paths[i] = Lrv.num_paths[id[i]];
 				P[i]         = Lrv.parents[id[i]];
@@ -325,6 +330,8 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			assert(par_sum == 0);
 		}
 	}
+
+	#undef SET_DISTANCE
 }
 
 rgraph_vinfo bwc_our::get_node_info(int u)
@@ -360,30 +367,79 @@ void bwc_our::sim_brandes_all()
 	info[root] = get_node_info(root);
 	bfq.push(root);
 
-	while(!bfq.empty()) {
-		int u = bfq.front();
-		bfq.pop();
+	#ifdef __DRY_RUN__
+	int max_allocated     = 0;
+	int current_allocated = 0;
+	#endif // __DRY_RUN__
+	for (int root = 0; root < Gr.N; ++root) {
+		if (!Gr.sig[root] || vis[root]) {
+			continue;
+		}
+		bfq.push(root);
+		vis[root] = 1;
 
-		for (auto &e : Gr.adj_list[u]) {
-			int v = e.v.id;
-			if (vis[v] == 0) {
-				info[v] = get_node_info(v);
-				bfq.push(v);
-				vis[v] = 1;
-			}
-			if (vis[v] == 1) {
-				for (auto &w : e.vids) {
-					info[u].p = e.p;
-					info[u].q = e.q;
-					sim_brandes1(w, info[u], info[v]);
+		#ifdef __DRY_RUN__
+			++current_allocated;
+			max_allocated = max(max_allocated, current_allocated);
+		#else
+			info[root] = get_node_info(root);
+		#endif
+
+		while(!bfq.empty()) {
+			int u = bfq.front();
+			bfq.pop();
+
+			for (auto &e : Gr.adj_list[u]) {
+				int v = e.v.id;
+				if (vis[v] == 0 && Gr.sig[v]) {
+					/* the dry run simulates the allocations we'd make */
+					bfq.push(v);
+					vis[v] = 1;
+
+					#ifdef __DRY_RUN__
+					++current_allocated;
+					max_allocated = max(max_allocated, current_allocated);
+					#else /* not a dry run, so actually make the allocation */
+					info[v] = get_node_info(v);
+					#endif
+				}
+				if (vis[v] == 1) {
+					#ifndef __DRY_RUN__
+					for (auto &w : e.vids) {
+						info[u].p = e.p;
+						info[u].q = e.q;
+						sim_brandes1(w, info[u], info[v]);
+					}
+					#endif
 				}
 			}
-		}
 
-		sim_brandes1(rid[u], info[u], info[u]);
-		vis[u] = 2;
-		FREE_MEMORY(u);
+			vis[u] = 2;
+			#ifdef __DRY_RUN__
+			--current_allocated;
+			#else
+			sim_brandes1(rid[u], info[u], info[u]);
+			FREE_MEMORY(u);
+			#endif
+		}
 	}
+
+	for (int root = 0; root < Gr.N; ++root) {
+		if (!Gr.sig[root]) {
+			#ifndef __DRY_RUN__
+			assert(!vis[root]);
+			info[root] = get_node_info(root);
+			sim_brandes1(rid[root], info[root], info[root]);
+			FREE_MEMORY(root);
+			#endif
+		}
+	}
+
+	#ifdef __DRY_RUN__
+	fprintf(stderr, "max number of active elements was %d\n", max_allocated);
+	#endif
+
+	#undef FREE_MEMORY
 }
 
 #endif //__OUR__

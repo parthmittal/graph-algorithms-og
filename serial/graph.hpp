@@ -65,6 +65,7 @@ struct reduced_graph_t {
 
 	int N;
 	std::vector< std::vector< w_expanded_edge_t > > adj_list;
+	std::vector< int > sig;
 };
 
 struct rgraph_vinfo {
