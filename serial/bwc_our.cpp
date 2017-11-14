@@ -371,7 +371,6 @@ void bwc_our::sim_brandes_all()
 
 		queue<int> bfq;
 		bfq.push(root);
-		info[root] = get_node_info(root);
 		vis[root] = 1;
 
 		#ifdef __DRY_RUN__
