@@ -8,6 +8,7 @@
 #include <stack>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 #include <cassert>
 
@@ -333,11 +334,11 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 	#undef SET_DISTANCE
 }
 
-rgraph_vinfo bwc_our::get_node_info(int u)
+std::unique_ptr<rgraph_vinfo> bwc_our::get_node_info(int u)
 {
 	rgraph_vinfo info;
 	sssp(u, Gr, info.inorder, info.dist, info.num_paths, info.parents);
-	return info;
+	return std::make_unique<rgraph_vinfo>(info);
 }
 
 void bwc_our::sim_brandes_all()
@@ -349,15 +350,7 @@ void bwc_our::sim_brandes_all()
 
 	using namespace std;
 
-	#define FREE_MEMORY(v)                           \
-	do {                                             \
-		vector<int>().swap(info[v].dist);            \
-		vector<long long>().swap(info[v].num_paths); \
-		vector<vector<int>>().swap(info[v].parents); \
-		vector<int>().swap(info[v].inorder);         \
-	} while(0)
-
-	vector<rgraph_vinfo> info(Gr.N);
+	vector<unique_ptr<rgraph_vinfo>> info(Gr.N);
 	vector<int> vis(Gr.N);
 
 	#ifdef __DRY_RUN__
@@ -401,9 +394,9 @@ void bwc_our::sim_brandes_all()
 				if (vis[v] == 1) {
 					#ifndef __DRY_RUN__
 					for (auto &w : e.vids) {
-						info[u].p = e.p;
-						info[u].q = e.q;
-						sim_brandes1(w, info[u], info[v]);
+						info[u] -> p = e.p;
+						info[u] -> q = e.q;
+						sim_brandes1(w, *info[u], *info[v]);
 					}
 					#endif
 				}
@@ -413,8 +406,8 @@ void bwc_our::sim_brandes_all()
 			#ifdef __DRY_RUN__
 			--current_allocated;
 			#else
-			sim_brandes1(rid[u], info[u], info[u]);
-			FREE_MEMORY(u);
+			sim_brandes1(rid[u], *info[u], *info[u]);
+			info[u].reset(); /* calls destructor on *(info[u]) */
 			#endif
 		}
 	}
@@ -424,8 +417,8 @@ void bwc_our::sim_brandes_all()
 			#ifndef __DRY_RUN__
 			assert(!vis[root]);
 			info[root] = get_node_info(root);
-			sim_brandes1(rid[root], info[root], info[root]);
-			FREE_MEMORY(root);
+			sim_brandes1(rid[root], *info[root], *info[root]);
+			info[root].reset();
 			#endif
 		}
 	}
@@ -433,8 +426,6 @@ void bwc_our::sim_brandes_all()
 	#ifdef __DRY_RUN__
 	fprintf(stderr, "max number of active elements was %d\n", max_allocated);
 	#endif
-
-	#undef FREE_MEMORY
 }
 
 #endif //__OUR__

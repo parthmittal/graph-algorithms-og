@@ -24,7 +24,7 @@ public:
 	void forward_phase_reduced_graph();
 	void sim_forward_phase(int u);
 	void sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv);
-	rgraph_vinfo get_node_info(int u);
+	std::unique_ptr<rgraph_vinfo> get_node_info(int u);
 	void sim_brandes_all();
 
 	bwc_our(undirected_graph_t &G)
