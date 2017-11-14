@@ -49,13 +49,8 @@ bwc_our::compute_reduced_graph()
 		G.adj_list[ear_end].push_back({-1});
 
 		int weight = 1, u = ear[0].u.id;
-		edge_t joint_start_edge;
 		vector<int> active;
 		for (auto &e : ear) {
-			if (weight == 1) {
-				/* the new joint starts at e.u, so we should store e */
-				joint_start_edge = e;
-			}
 			if (weight > 0 && G.adj_list[e.v.id].size() >= 3) {
 				/* add an edge between u and e.v */
 				int v = e.v.id;
@@ -65,11 +60,7 @@ bwc_our::compute_reduced_graph()
 				add_vertex_reduced_graph(u);
 				add_vertex_reduced_graph(v);
 
-				int p = joint_start_edge.v.id;
-				int q = e.u.id;
-				//fprintf(stderr, "%d(%d) <%d--(%d)--%d> %d(%d)\n",
-				//		u, id[u], p, weight, q, v, id[v]);
-				Gr.add_edge(id[u], id[v], p, q, active, weight);
+				Gr.add_edge(id[u], id[v], active, weight);
 
 				int temp = 1;
 				for (auto &w : active) {
@@ -111,22 +102,19 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 
 	vector<int> dist(G.N, -1);
 	vector<long long> num_paths(G.N, 0);
-	vector< vector<int> > P(G.N);
 
-	#define SET_DISTANCE(v, distance, paths, parents)                \
-	do {                                                             \
-		if (v == leftV[u] || v == rightV[u]) {                       \
-			continue;                                                \
-		}                                                            \
-		if (dist[v] == -1 || distance < dist[v]) {                   \
-			dist[v]      = distance;                                 \
-			num_paths[v] = 0;                                        \
-			P[v].clear();                                            \
-		}                                                            \
-		if (distance == dist[v]) {                                   \
-			num_paths[v] += paths;                                   \
-			P[v].insert(P[v].end(), parents.begin(), parents.end()); \
-		}                                                            \
+	#define SET_DISTANCE(v, distance, paths)        \
+	do {                                            \
+		if (v == leftV[u] || v == rightV[u]) {      \
+			continue;                               \
+		}                                           \
+		if (dist[v] == -1 || distance < dist[v]) {  \
+			dist[v]      = distance;                \
+			num_paths[v] = 0;                       \
+		}                                           \
+		if (distance == dist[v]) {                  \
+			num_paths[v] += paths;                  \
+		}                                           \
 	} while (0)
 
 	if (G.adj_list[u].size() < 2) {
@@ -160,7 +148,6 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 				/* simply "import" values from Lrv */
 				dist[i]      = Lrv.dist[id[i]];
 				num_paths[i] = Lrv.num_paths[id[i]];
-				P[i]         = Lrv.parents[id[i]];
 			}
 		}
 	} else {
@@ -176,20 +163,15 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 
 			num_paths[leftV[u]]  = 1;
 			num_paths[rightV[u]] = 1;
-
-			P[leftV[u]].push_back(Lrv.p);
-			P[rightV[u]].push_back(Lrv.q);
 		} else if (leftV[u] == rightV[u]) {
 			int v = leftV[u];
 			int d1 = distL[u], d2 = distR[u];
 			dist[v] = min(d1, d2);
 
 			if (d1 == dist[v]) {
-				P[v].push_back(Lrv.p);
 				num_paths[v]++;
 			} 
 			if (d2 == dist[v]) {
-				P[v].push_back(Lrv.q);
 				num_paths[v]++;
 			}
 		}
@@ -200,23 +182,23 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			int d1 = distL[u] + Lrv.dist[v];
 			int d2 = distR[u] + Rrv.dist[w];
 			if (d1 <= d2) {
-				SET_DISTANCE(rid[v], d1, Lrv.num_paths[v], Lrv.parents[v]);
+				SET_DISTANCE(rid[v], d1, Lrv.num_paths[v]);
 				++i;
 			} else {
-				SET_DISTANCE(rid[w], d2, Rrv.num_paths[w], Rrv.parents[w]);
+				SET_DISTANCE(rid[w], d2, Rrv.num_paths[w]);
 				++j;
 			}
 		}
 		while(i < L.size()) {
 			int v = L[i];
 			int d1 = distL[u] + Lrv.dist[v];
-			SET_DISTANCE(rid[v], d1, Lrv.num_paths[v], Lrv.parents[v]);
+			SET_DISTANCE(rid[v], d1, Lrv.num_paths[v]);
 			++i;
 		}
 		while(j < R.size()) {
 			int w = R[j];
 			int d2 = distR[u] + Rrv.dist[w];
-			SET_DISTANCE(rid[w], d2, Rrv.num_paths[w], Rrv.parents[w]);
+			SET_DISTANCE(rid[w], d2, Rrv.num_paths[w]);
 			++j;
 		}
 
@@ -296,29 +278,18 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 	/* We also need for each vertex v the "parents" of v,
 	 * which is a list of all the vertices that are adjacent
 	 * to v on a shortest path from u to v.
-	 * For every vertex in the reduced graph, we store this
-	 * explicitly.
-	 * For every vertex v not in the reduced graph, we check every
-	 * vertex incident on v (since there are only 2 of them)
+	 * We don't store this explicitly, instead note that
+	 * u is a parent of v iff d[u] + 1 == d[v] && (u, v) is an edge of G.
 	 */
 
 	vector<double> delta(G.N);
 	for (auto &x : S) {
 		int v = x.first;
 		ll par_sum = 0;
-		if (id[v] == -1) {
-			/* not in the reduced graph */
-			for (auto &e : G.adj_list[v]) {
-				int w = e.id;
-				if (dist[w] + 1 == dist[v]) {
-					/* w is a parent of v */
-					delta[w] += ((1 + delta[v]) * num_paths[w]) / num_paths[v];
-					par_sum += num_paths[w];
-				}
-			}
-		} else {
-			/* in reduced graph, parents are already known */
-			for (auto &w : P[v]) {
+		for (auto &e : G.adj_list[v]) {
+			int w = e.id;
+			if (dist[w] + 1 == dist[v]) {
+				/* w is a parent of v */
 				delta[w] += ((1 + delta[v]) * num_paths[w]) / num_paths[v];
 				par_sum += num_paths[w];
 			}
@@ -337,7 +308,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 std::unique_ptr<rgraph_vinfo> bwc_our::get_node_info(int u)
 {
 	rgraph_vinfo info;
-	sssp(u, Gr, info.inorder, info.dist, info.num_paths, info.parents);
+	sssp(u, Gr, info.inorder, info.dist, info.num_paths);
 	return std::make_unique<rgraph_vinfo>(info);
 }
 
@@ -394,8 +365,6 @@ void bwc_our::sim_brandes_all()
 				if (vis[v] == 1) {
 					#ifndef __DRY_RUN__
 					for (auto &w : e.vids) {
-						info[u] -> p = e.p;
-						info[u] -> q = e.q;
 						sim_brandes1(w, *info[u], *info[v]);
 					}
 					#endif

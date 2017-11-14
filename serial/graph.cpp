@@ -30,13 +30,12 @@ void reduced_graph_t::add_vertex()
 }
 
 void
-reduced_graph_t::add_edge(int u, int v, int p, int q, std::vector<int> vid,
-		int weight)
+reduced_graph_t::add_edge(int u, int v, std::vector<int> vid, int weight)
 {
 	assert(u < N  && v < N);
-	adj_list[u].push_back({{u}, {v}, p, q, vid, weight});
+	adj_list[u].push_back({{u}, {v}, vid, weight});
 	reverse(vid.begin(), vid.end());
-	adj_list[v].push_back({{v}, {u}, q, p, vid, weight});
+	adj_list[v].push_back({{v}, {u}, vid, weight});
 }
 
 reduced_graph_t::reduced_graph_t()
