@@ -157,7 +157,6 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 				}
 			} else {
 				/* simply "import" values from Lrv */
-				fprintf(stderr, "%d %d\n", i, id[i]);
 				dist[i]      = Lrv.dist[id[i]];
 				num_paths[i] = Lrv.num_paths[id[i]];
 				P[i]         = Lrv.parents[id[i]];
@@ -358,14 +357,8 @@ void bwc_our::sim_brandes_all()
 		vector<int>().swap(info[v].inorder);         \
 	} while(0)
 
-	int root = 0;
-	queue<int> bfq;
-
 	vector<rgraph_vinfo> info(Gr.N);
 	vector<int> vis(Gr.N);
-
-	info[root] = get_node_info(root);
-	bfq.push(root);
 
 	#ifdef __DRY_RUN__
 	int max_allocated     = 0;
@@ -375,7 +368,10 @@ void bwc_our::sim_brandes_all()
 		if (!Gr.sig[root] || vis[root]) {
 			continue;
 		}
+
+		queue<int> bfq;
 		bfq.push(root);
+		info[root] = get_node_info(root);
 		vis[root] = 1;
 
 		#ifdef __DRY_RUN__
