@@ -1,11 +1,15 @@
 \subsection{Computing the reduced graph}
-The main idea is to collapse away the vertices with degree~$2$.
-We use the ear decomposition computed in \ref{ED} for bookkeeping.
+The main idea is that we can ``collapse'' all edges which touch at least
+one vertex of degree $2$.
+For example, consider two vertices of degree at least $3$, such that there
+is a path connecting them where every internal vertex of the path has
+degree $2$. Then we can replace the entire path by a single edge with weight
+equal to the number of edges on it.
+The ear decomposition is a very useful tool for book-keeping and constructing
+$G^r$.
 
-The reduced graph is an weighted undirected graph, and for each
-edge, we store its endpoints $u$ and $v$, a weight $w$, and two additional
-vertices $u'$ and $v'$ (more on this below).
-Denote the reduced graph by $G^r$.
+The reduced graph is a weighted undirected multi-graph (why?), and for each
+edge, we store its endpoints $u$ and $v$, and a weight $w$.
 
 For every ear in the ear decomposition, there are two cases.
 \begin{enumerate}[I]
@@ -18,19 +22,8 @@ For every ear in the ear decomposition, there are two cases.
 		the traversal, $p$ be the vertex just after $v$ in the traversal,
 		and $q$ be the vertex just before $\ttt{next}(v)$ in the traversal.
 
-		Then we add the edge $e = \left\{ v, \ttt{next}(v), w, p, q \right\}$
+		Then we add the edge $e = \left\{ v, \ttt{next}(v), w \right\}$
 		to $G^r$.
-		It is natual to be curious about the reason for this shenanigan
-		at this point.
-		The main idea is that every time we use the edge~$e$ in a
-		shortest path, we will ``open'' it back up,
-		and require the immediate predecessor of
-		$v$ (which is $p$) when we travel along $e$, and similar for
-		$\ttt{next}(v)$ (which is $q$).
-		Note that any vertex $u$ between $v$ and $\ttt{next}(v)$
-		necessarily has degree~$2$, which means once we know which direction
-		we traverse $e$ in to get to $u$, it is simply a matter of looking
-		up the corresponding neighbour in the (unique) ear $u$ belongs to.
 
 		Also, define the functions $\ttt{left}$ and $\ttt{right}$ on
 		every vertex in $V(G) \setminus V(G^r)$ as follows:
@@ -45,5 +38,7 @@ For every ear in the ear decomposition, there are two cases.
 		and proceed as above.
 \end{enumerate}
 
-It should be noted that $G^r$ is a multi-graph, but importantly, the
-construction above does not use the same edge from $G$ twice.
+It should be noted that $G^r$ is a multi-graph, since there may be 2 or more
+edge-disjoin paths between two vertices of $G^r$ in $G$;
+but importantly, the construction above does not use the same edge from $G$
+twice.

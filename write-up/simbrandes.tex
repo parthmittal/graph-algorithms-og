@@ -7,23 +7,27 @@ First, in simulating the forward phase, there are two cases:
 	\item
 		$u \in V(G^r)$.
 		Then, for all $v \in V(G^r)$, we already know the values
-		$\delta_G(u, v)$, $\sigma_G(u, v)$, and $P_G(u, v)$.
+		$\delta_G(u, v)$ and $\sigma_G(u, v)$.
 
 		For all $v \in V(G) \setminus V(G^r)$, we look at the paths
 		through $\ttt{left(v)}$ and $\ttt{right(v)}$, from $u$ to $v$.
 		Then depending on the relation of their lengths, we compute
 		$\sigma_G(u, v)$, and we're almost done.
 		
-		What about $P_G(u, v)$? We don't compute it explicitly for
-		$v \in V(G) \setminus V(G^r)$, since the degree of such $v$ is
-		exactly $2$, so we can check all the edges incident on $v$
-		in the reverse phase.
+		What about $P_G(u, v)$? We don't compute it explicitly at all,
+		instead using the fact that
+		$w \in P_G(u, v) \iff \delta_G(u, w) + 1 = \delta_G(u, v)$ and
+		$(w, v) \in E(G)$.
 	\item
 		$u \notin V(G^r)$.
-		We first find $\delta_G(u, v)$, $\sigma_G(u, v)$ and $P_G(u, v)$
-		for all $v \in V(G^r)$. We do this using a \emph{merge} procedure
-		akin to the one in merge-sort on the two lists
-		$S_{G^r}(\ttt{left}(u))$ and $S_{G^r}(\ttt{right}(u))$.
+		We first find $\delta_G(u, v)$ and $\sigma_G(u, v)$
+		for all $v \in V(G^r)$.
+		The idea is that a shortest path to any vertex in $G^r$ must
+		pass through either $\ttt{left}(u)$ or $\ttt{right}(u)$.
+		Now, iterating $S_{G^r}(\ttt{left}(u))$ and $S_{G^r}(\ttt{right}(u))$,
+		à la Merge Sort, we can compare the distances of the top element
+		of each list, and always pick the smaller one (say $v$) and update
+		$\delta_G(u, v)$ and $\sigma_G(u, v)$.
 
 		Now, to compute $\delta_G(u, v)$ and $\sigma_G(u, v)$
 		for all $u \in V(G) \setminus V(G^r)$, we do exactly the same as
@@ -32,18 +36,11 @@ First, in simulating the forward phase, there are two cases:
 \end{enumerate}
 
 Now, to simulate the reverse phase, we need to traverse $v\in V(G)$
-nonincreasing order of $\delta_G(u, v)$; we use counting-sort to get
+in non-increasing order of $\delta_G(u, v)$; we use counting-sort to get
 the vertices in this order in $O(V)$
 (since the maximum value of $\delta_G$ is $V - 1$).
 
-The backward phase is now straightforward, with two cases:
-\begin{enumerate}
-	\item
-		$v \in V(G^r)$: For all such vertices, we have explicitly stored
-		$P_G(u, v)$, so we update all the vertices in that list.
-	\item
-		$v \notin V(G^r)$: Note that a vertex $w$ incident on $v$ is on a
-		shortest path from $u$ to $v \iff \delta_G(u, w) + 1 = \delta_G(u, v)$;
-		and any vertex not in $V(G^r)$ has degree~$2$, so this is within
-		a constant of storing $P_G(u, v)$ explicitly.
-\end{enumerate}
+Note that we now have all the information that Brandes' Algorithm has after
+the forward phase starting at $u$ in $G$; we simply run the backward phase
+as is (except: when we need the parents of a vertex, we traverse all edges
+incident on it).

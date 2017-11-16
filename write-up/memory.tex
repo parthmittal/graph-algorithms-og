@@ -1,0 +1,24 @@
+\subsection{Saving memory}
+A vigilant reader might notice that our algorithm actually uses
+$O(V(G^r)^2)$ space, which is prohibitively large.
+In this subsection, we present some tricks to reduce this in practice.
+
+\begin{enumerate}[I]
+\item
+	We don't need $\delta_{G^r}(s, v)$, etc for some sources $s \in V(G^r)$.
+	Note that we need these values to simulate Brandes Algorithm for all $u$
+	such that either $\ttt{left}(u)$ or $\ttt{right}(u)$ is $s$.
+	If there are no such vertices, we don't need to store the information
+	for $s$ at all.
+\item
+	Building on the previous point, we can get rid of $\delta_{G^r}(s, v)$, etc.
+	for the source $s$ as soon as we're done with simulating Brandes Algorithm
+	for all $u$ which have $s$ as $\ttt{left}(u)$ or $\ttt{right}(u)$.
+	The idea is then to compute a level order of $V(G^r)$ after picking an
+	arbitrary source and treating all the edges of $G^r$ as undirected.
+	Then at any point we only need to keep the information from two adjacent
+	levels of nodes in memory.
+	While it is quite easy to construct graphs where all the nodes are on two
+	adjacent levels, it turns out in practice this leads to dramatic
+	improvements.
+\end{enumerate}

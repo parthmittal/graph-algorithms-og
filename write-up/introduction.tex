@@ -1,9 +1,13 @@
 \section{Introduction}
 This documents my implementation of the Betweenness Centrality algorithm
 described in \cite{pachorkar16}.
+While the eventual aim is to have a tight parallel implementation that
+improves upon the previous work, as of now all of my code is serial.
 
 It should be noted that my implementation deals only with biconnected graphs.
 The main idea of the algorithm is to reduce the graph size by collapsing
 the edges between ``adjacent'' vertices of degree~$\geq 3$ on the same
 ear, in an ear decomposition of the graph, and then simulate Brandes
 Algorithm on the original graph using data from this reduced graph.
+
+In the the next section, we discuss preliminaries.

@@ -1,0 +1,17 @@
+\section{Our Algorithm}
+NB: We call the proceeding description our approach only for brevity; it is
+mostly the ideas presented in \cite{pachorkar16} with minor modifications.
+
+The key idea is to reduce the number of breadth-first-searches we perform;
+we construct a (weighted) reduced graph by getting rid of all the vertices of
+degree 2,
+and then run Dijkstra's Algorithm for each source vertex $u$ in the
+reduced graph (hereon $G^r$), to find $\delta_{G^r}(u, v)$ and
+$\sigma_{G^r}(u, v)$ for all $v \in V(G^r)$.
+We then use the information from the reduced graph to simulate brandes
+algorithm for every vertex in the original graph.
+
+\input{reducegraph.tex}
+\input{brandesreduced.tex}
+\input{simbrandes.tex}
+\input{memory.tex}

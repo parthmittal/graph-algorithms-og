@@ -1,0 +1,72 @@
+\section{Preliminaries}
+\label{prelim}
+
+\subsection{Notation}
+Unless otherwise noted, the graphs we deal with are undirected, unweighted,
+simple, and 2-vertex-connected.
+The vertex set of a graph $G$ is $V(G)$, the edge set is $E(G)$.
+
+$\sigma_G(s, t)$ is the number of shortest paths between $s$ and $t$ in $G$,
+and $\sigma_G(s, t, v)$ is the number of shortest paths between $s$ and $t$,
+which pass through $v$.
+
+$\delta_G(s, t)$ is the length of a shortest path between $s$ and $t$
+in the graph $G$.
+
+In several places, notation has been abused for convenience;
+when the context makes it clear $S$ has been used to mean $\card{S}$,
+and also when the graph we are talking about is clear, $V$ and $E$ are
+used to mean that graph's vertex and edge-set respectively.
+
+\subsection{Ear Decomposition}
+An ear of a graph is either a simple path or a simple cycle.
+
+An \emph{open ear decomposition} of a graph $G$ is a partition of $E(G)$ into
+a sequence of ears $P_0, P_1, \dots P_k$, such that
+$P_0$ is a cycle, and for each $i > 0$, $P_i$ is a simple path,
+with both of its endpoints in $P_0 \cup P_1 \cup\dots\cup P_{i - 1}$, and
+its internal vertices not in any previous ear.
+
+An \emph{ear decomposition} drops the requirement that each $P_i$ for $i > 0$
+be a path.
+
+It was shown in \cite{whitney32} that an open ear decomposition exists iff
+$G$ is 2-vertex-biconnected (and this is the reason the current implementation
+focuses on biconnected components).
+
+We use the ear decomposition extensively;
+it suffices to use a decent serial algorithm to compute it, for example the
+one in \cite{schmidt13}, which runs in $O(V + E)$.
+
+\subsection{Betweenness Centrality}
+The \emph{betweenness centrality} of a vertex $v$ is defined as
+\[ \sum_{s, t \in V(G)\setminus \{v\}}
+	\frac{\sigma_G(s, t, v)}{\sigma_G(s, t)} \]
+
+It should be easy to see a naive algorithm to compute betweenness centrality;
+note that if $v$ is on at least one shortest path from $s$ to $t$,
+then $\sigma_G(s, t, v) = \sigma_G(s, v) \times \sigma_G(v, t)$.
+\begin{algorithm}
+\caption{Naive betweenness centrality}
+\label{bwc-naive}
+\begin{algorithmic}
+\Function{bwc-naive}{$G$}
+	\State $B[v] \gets 0, \forall v \in V(G)$
+	\For{$s \in V(G)$}
+		\State Find $\sigma_G(s, t)$, and $\delta_G(s, t), \forall t \in V(G)$
+		\Comment{Can do this using a BFS with source $s$}
+		\For{$v \in V(G)\setminus \{s\}$}
+			\For{$t \in V(G)\setminus \{v\}$}
+				\If{$\delta_G(s, t) = \delta_G(s, v) + \delta_G(v, t)$}
+					\State 
+					$B[v] \gets B[v] + \frac{\sigma_G(s, t, v)}{\sigma_G(s, t)}$
+				\EndIf
+			\EndFor
+		\EndFor
+	\EndFor
+	\State \Return B
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+Unfortunately, Algorithm \ref{bwc-naive} runs in $O(V^3)$; fortunately, it is
+not hard to do better.

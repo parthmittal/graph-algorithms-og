@@ -7,17 +7,9 @@ Then, for every $u \in V(G^r)$, we compute an ordering of $V(G^r)$,
 $S_{G^r}(u)$, where $\delta(u, v) \leq \delta(u, w)$ whenever
 $v$ occurs before $w$ in $S_{G^r}(u)$.
 
-Also, for every pair $(u, v)$ in $V(G^r) \times V(G^r)$, we compute
-$P_{G^r}(u, v)$ which stores all the vertices $w$ such that there exists
-a shortest path from $u$ to $v$ in $G$ (note, not $G^r$) where $w$ is the
-vertex preceding $v$.
-Note how this can be computed with an $O(1)$ lookup because we stored
-the predecessors of $v$ and $\ttt{next}(v)$ along $e$.
-
 A vigilant reader might notice that
 \begin{align*}
 \delta_{G^r} &= \delta_{G}\restriction_{G^r \times G^r}\\
 \sigma_{G^r} &= \sigma_{G}\restriction_{G^r \times G^r}\\
-P_{G^r}      &= P_{G}\restriction_{G^r \times G^r}\\
 \end{align*}
-congratulations, we will use this a lot later.
+This is really very useful, and we will skip the proof.
