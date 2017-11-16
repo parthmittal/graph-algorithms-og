@@ -1,4 +1,5 @@
 #include <vector>
+#include <memory>
 #include "graph.hpp"
 #include "ear-decomposition-dfs.hpp"
 
