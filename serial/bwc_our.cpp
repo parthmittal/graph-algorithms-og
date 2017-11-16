@@ -19,7 +19,7 @@ void
 bwc_our::add_vertex_reduced_graph(int v)
 {
 	if (id[v] == -1) {
-		rid[Gr.N] = v;
+		rid.push_back(v);
 		id[v] = Gr.N;
 		Gr.add_vertex(); /* adds a vertex with label id[u] */
 	} else {
@@ -32,8 +32,6 @@ bwc_our::compute_reduced_graph()
 {
 	using namespace std;
 	two.ear_decompose();
-
-	cout << two.ear_decomposition.size() << endl;
 
 	/* NB: currently we expect that G is two-connected */
 	assert(two.ear_decomposition.size() == 1);
@@ -121,10 +119,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 	if (G.adj_list[u].size() < 2) {
 		/* not biconnected, something is wrong */
 		assert(0);
-	} else if (G.adj_list[u].size() >= 3) {
-		/* should be a part of reduced graph */
-		assert(id[u] != -1);
-
+	} else if (id[u] != -1) {
 		/* we already know the distance of every vertex in Gr
 		 * from u : Lrv.dist, Lrv.num_paths, etc. */
 		dist[u] = 0;
@@ -164,6 +159,32 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 
 			num_paths[leftV[u]]  = 1;
 			num_paths[rightV[u]] = 1;
+
+			size_t i = 0, j = 0;
+			while(i < L.size() && j < R.size()) {
+				int v = L[i], w = R[j];
+				int d1 = distL[u] + Lrv.dist[v];
+				int d2 = distR[u] + Rrv.dist[w];
+				if (d1 <= d2) {
+					SET_DISTANCE(rid[v], d1, Lrv.num_paths[v]);
+					++i;
+				} else {
+					SET_DISTANCE(rid[w], d2, Rrv.num_paths[w]);
+					++j;
+				}
+			}
+			while(i < L.size()) {
+				int v = L[i];
+				int d1 = distL[u] + Lrv.dist[v];
+				SET_DISTANCE(rid[v], d1, Lrv.num_paths[v]);
+				++i;
+			}
+			while(j < R.size()) {
+				int w = R[j];
+				int d2 = distR[u] + Rrv.dist[w];
+				SET_DISTANCE(rid[w], d2, Rrv.num_paths[w]);
+				++j;
+			}
 		} else if (leftV[u] == rightV[u]) {
 			int v = leftV[u];
 			int d1 = distL[u], d2 = distR[u];
@@ -175,32 +196,13 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			if (d2 == dist[v]) {
 				num_paths[v]++;
 			}
-		}
 
-		size_t i = 0, j = 0;
-		while(i < L.size() && j < R.size()) {
-			int v = L[i], w = R[j];
-			int d1 = distL[u] + Lrv.dist[v];
-			int d2 = distR[u] + Rrv.dist[w];
-			if (d1 <= d2) {
-				SET_DISTANCE(rid[v], d1, Lrv.num_paths[v]);
-				++i;
-			} else {
-				SET_DISTANCE(rid[w], d2, Rrv.num_paths[w]);
-				++j;
+			for (int i = 0; i < Gr.N; ++i) {
+				if (i != id[v]) {
+					dist[rid[i]]      = dist[v] + Lrv.dist[i];
+					num_paths[rid[i]] = num_paths[v] * Lrv.num_paths[i];
+				}
 			}
-		}
-		while(i < L.size()) {
-			int v = L[i];
-			int d1 = distL[u] + Lrv.dist[v];
-			SET_DISTANCE(rid[v], d1, Lrv.num_paths[v]);
-			++i;
-		}
-		while(j < R.size()) {
-			int w = R[j];
-			int d2 = distR[u] + Rrv.dist[w];
-			SET_DISTANCE(rid[w], d2, Rrv.num_paths[w]);
-			++j;
 		}
 
 		for (int i = 0; i < G.N; ++i) {
@@ -208,9 +210,6 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 				continue;
 			}
 			if (id[i] == -1) {
-				/* not in the reduced graph.
-				 * NB: we don't care about this nodes parents, since
-				 * it only has two edges on it */
 				assert(G.adj_list[i].size() == 2);
 
 				/* first check if is in same ear as u */
@@ -324,6 +323,7 @@ void bwc_our::sim_brandes_all()
 
 	vector<unique_ptr<rgraph_vinfo>> info(Gr.N);
 	vector<int> vis(Gr.N);
+	vector<int> done(G.N);
 
 	#ifdef __DRY_RUN__
 	int max_allocated     = 0;
@@ -366,7 +366,10 @@ void bwc_our::sim_brandes_all()
 				if (vis[v] == 1) {
 					#ifndef __DRY_RUN__
 					for (auto &w : e.vids) {
-						sim_brandes1(w, *info[u], *info[v]);
+						if (!done[w]) {
+							done[w] = 1;
+							sim_brandes1(w, *info[u], *info[v]);
+						}
 					}
 					#endif
 				}
@@ -376,8 +379,10 @@ void bwc_our::sim_brandes_all()
 			#ifdef __DRY_RUN__
 			--current_allocated;
 			#else
-			sim_brandes1(rid[u], *info[u], *info[u]);
-			info[u].reset(); /* calls destructor on *(info[u]) */
+			if (!done[rid[u]]) {
+				sim_brandes1(rid[u], *info[u], *info[u]);
+				info[u].reset(); /* calls destructor on *(info[u]) */
+			}
 			#endif
 		}
 	}
@@ -386,6 +391,7 @@ void bwc_our::sim_brandes_all()
 		if (!Gr.sig[root]) {
 			#ifndef __DRY_RUN__
 			assert(!vis[root]);
+			assert(!done[root]);
 			/* instead of simulating for this , just run Brandes Algorithm */
 			brandes1(G, rid[root], bwc);
 			#endif

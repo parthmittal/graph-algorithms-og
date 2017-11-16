@@ -28,7 +28,7 @@ public:
 	void sim_brandes_all();
 
 	bwc_our(undirected_graph_t &G)
-		:G(G), id(G.N, -1), rid(G.N), two(G), Gr(), leftV(G.N), rightV(G.N),
+		:G(G), id(G.N, -1), two(G), Gr(), leftV(G.N), rightV(G.N),
 		distL(G.N), distR(G.N), bwc(G.N)
 	{
 		compute_reduced_graph();
