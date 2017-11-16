@@ -391,7 +391,7 @@ void bwc_our::sim_brandes_all()
 		if (!Gr.sig[root]) {
 			#ifndef __DRY_RUN__
 			assert(!vis[root]);
-			assert(!done[root]);
+			assert(!done[rid[root]]);
 			/* instead of simulating for this , just run Brandes Algorithm */
 			brandes1(G, rid[root], bwc);
 			#endif
