@@ -16,6 +16,7 @@ public:
 	reduced_graph_t Gr;
 	std::vector<int> leftV, rightV;
 	std::vector<int> distL, distR;
+	std::vector<int> joint_id;
 
 	std::vector<double> bwc;
 
@@ -29,7 +30,7 @@ public:
 
 	bwc_our(undirected_graph_t &G)
 		:G(G), id(G.N, -1), two(G), Gr(), leftV(G.N), rightV(G.N),
-		distL(G.N), distR(G.N), bwc(G.N)
+		distL(G.N), distR(G.N), joint_id(G.N), bwc(G.N)
 	{
 		compute_reduced_graph();
 	}

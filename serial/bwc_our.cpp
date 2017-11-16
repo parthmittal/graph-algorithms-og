@@ -37,6 +37,7 @@ bwc_our::compute_reduced_graph()
 	assert(two.ear_decomposition.size() == 1);
 
 	auto &ED = two.ear_decomposition[0];
+	int eid = 1;
 	for (path_t &ear : ED) {
 		assert(ear.size() >= 1);
 
@@ -71,10 +72,12 @@ bwc_our::compute_reduced_graph()
 					Gr.sig[id[v]] = 1;
 					distL[w]      = temp;
 					distR[w]      = weight - temp;
+					joint_id[w]   = eid;
 					//fprintf(stderr, "%d %d %d\n", w, distL[w], distR[w]);
 					++temp;
 				}
 				active.clear();
+				++eid;
 
 				u = v;
 				weight = 1;
@@ -210,8 +213,8 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			if (id[i] == -1) {
 				assert(G.adj_list[i].size() == 2);
 
-				/* first check if is in same ear as u */
-				if (leftV[i] == leftV[u] && rightV[i] == rightV[u]) {
+				/* first check if is in same ear-joint as u */
+				if (joint_id[u] == joint_id[i]) {
 					/* two possibilities for best distance, 
 					 * going through vertex w/ deg >= 3 or not */
 
@@ -252,7 +255,6 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 				assert(0);
 			}
 		}
-
 	}
 
 	/* Now we know the distance for every vertex v of G:
