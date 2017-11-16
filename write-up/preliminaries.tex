@@ -1,7 +1,7 @@
-\section{Preliminaries}
+\chapter{Preliminaries}
 \label{prelim}
 
-\subsection{Notation}
+\section{Notation}
 Unless otherwise noted, the graphs we deal with are undirected, unweighted,
 simple, and 2-vertex-connected.
 The vertex set of a graph $G$ is $V(G)$, the edge set is $E(G)$.
@@ -18,7 +18,7 @@ when the context makes it clear $S$ has been used to mean $\card{S}$,
 and also when the graph we are talking about is clear, $V$ and $E$ are
 used to mean that graph's vertex and edge-set respectively.
 
-\subsection{Ear Decomposition}
+\section{Ear Decomposition}
 An ear of a graph is either a simple path or a simple cycle.
 
 An \emph{open ear decomposition} of a graph $G$ is a partition of $E(G)$ into
@@ -38,7 +38,7 @@ We use the ear decomposition extensively;
 it suffices to use a decent serial algorithm to compute it, for example the
 one in \cite{schmidt13}, which runs in $O(V + E)$.
 
-\subsection{Betweenness Centrality}
+\section{Betweenness Centrality}
 The \emph{betweenness centrality} of a vertex $v$ is defined as
 \[ \sum_{s, t \in V(G)\setminus \{v\}}
 	\frac{\sigma_G(s, t, v)}{\sigma_G(s, t)} \]

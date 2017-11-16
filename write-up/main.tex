@@ -1,4 +1,14 @@
-\documentclass{article}
+\documentclass[letterpaper,11pt]{report}
+
+\usepackage{fullpage}
+\usepackage{verbatim}
+\usepackage{cite}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+
+\usepackage[small]{caption}
+\usepackage{graphics}
+\usepackage[dvips]{graphicx}
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -24,7 +34,23 @@
 \usepackage{algpseudocode}
 \usepackage{amsthm}
 
-\title{Betweenness Centrality}
+\setlength{\oddsidemargin}{-0.4mm} % 25 mm left margin
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{160mm}      % 25 mm right margin
+\setlength{\topmargin}{-5.4mm}     % 20 mm top margin
+\setlength{\headheight}{5mm}
+\setlength{\headsep}{5mm}
+\setlength{\footskip}{10mm}
+\setlength{\textheight}{237mm}     % 20 mm bottom margin
+
+\setlength{\parskip}{1ex}
+\parindent 0in
+\def\SAONE{Specific Aim 1}
+\def\SATWO{Specific Aim 2}
+\def\SATHREE{Specific Aim 3}
+\def\SAFOUR{Specific Aim 4}
+
+\def\title{Efficient Computation of Betweenness Centrality}
 \author{Parth Mittal \\
 		\href{mailto:parth15069@iiitd.ac.in}{parth15069@iiitd.ac.in}}
 
@@ -34,12 +60,16 @@
 \DeclarePairedDelimiter\paren{(}{)}
 \newcommand{\ttt}[1]{\texttt{#1}}
 \newcommand{\bigO}[1]{O\left({#1}\right)}
+\newcommand*{\thead}[1]{\multicolumn{1}{|c|}{\bfseries #1}}
 
 % Better table padding
 \renewcommand{\arraystretch}{1.5}
 
 \begin{document}
-\maketitle
+\include{cover}
+\include{declaration}
+\include{abstract}
+\include{acknowledge}
 \input{introduction.tex}
 \input{preliminaries.tex}
 \input{brandes.tex}

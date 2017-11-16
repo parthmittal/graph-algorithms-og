@@ -1,4 +1,42 @@
-\section{Results}
+\chapter{Results}
+We used three data sets to compare our serial implementation with a
+serial implementation of Brandes Algorithm (code available
+\href{https://github.com/parthmittal/graph-algorithms}{here})
 
-I haven't written this section yet, because it turns out that the brandes
-serial code is quite slow.
+Note that some of the graphs we worked with are actually directed;
+we just read them as undirected graphs, and removed any loops and multi-edges.
+Also, since we require the input graph to be biconnected, we just picked
+the largest biconnected component of the graph.
+
+The edge and vertex counts have been rounded to the nearest thousand,
+and the running times are in seconds, and the value reported is CPU
+time from \verb|qacct| after job termination.
+
+\begin{table}[H]
+	\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\thead{Dataset} & \thead{Vertices (largest BCC)} & \thead{Edges (largest BCC)}
+& \thead{Runtime (Brandes)} & \thead{Runtime (our)}\\
+\hline
+	gnutella         & 63K (34K)    & 148K (119K) & 368 & 299\\
+\hline
+	soc-epinions1    & 76K (36K)    & 509K (365K) & 553 & 565\\
+\hline
+\end{tabular}
+	}
+\end{table}
+
+There were plans to run on a few other (larger) datasets, but due to technical
+issues \footnote{an amazingly long debugging session that went on till 2 hours
+before I submitted this report}
+these plans failed to materialize.
+
+Much more data on runnning time, over many more datasets will be added
+to the final presentation.
+
+For checking validity of testdata generated (including a very stringent input
+format) and comparing the output using a floating point comparator,
+the tool \href{https://github.com/MikeMirzayanov/testlib}{testlib}
+was invaluable.
+Note that an absolute or relative error of $10^{-4}$ was accepted.

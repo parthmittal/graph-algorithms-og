@@ -1,13 +1,50 @@
-\section{Brandes Algorithm}
+\chapter{Brandes Algorithm}
+\label{brandes}
 Brandes Algorithm does some clever accumulation to improve upon the naive
 algorithm, and runs in $O(VE)$, and uses only $O(V + E)$ space.
-We skip deriving or proving the algorithm, but present the pseudocode;
+We skip deriving or proving the algorithm, but present the pseudocode as
+Algorithm \ref{alg_brandes};
 the motivated reader may look at \cite{brandes01} for more detail.
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{Brandes Algorithm}
-\label{brandes}
+\label{alg_brandes}
 \begin{algorithmic}
-	\State TODO: Write pseudocode here
+\Function{brandes}{$G$}
+	\State $B[v] \gets 0, \forall v \in V$
+	\For{$s \in V$}
+		\State $S \gets$ empty stack;
+		\State $P[w] \gets$ empty list, $\forall w \in V$;
+		\State $\sigma[t] \gets 0, \forall t \in V$; $\sigma[s] = 1$;
+		\State $\delta[t] \gets \infty, \forall t \in V$; $\delta[s] = 0$;
+		\State $Q \gets$ empty queue;
+		\State enqueue $s \rightarrow Q$;
+		\While{$Q$ not empty}
+			\State dequeue $v \gets Q$;
+			\State push $v \rightarrow S$;
+			\ForAll{neighbours $w$ of $v$}
+				\If{$d[w] = \infty$}
+					\State enqueue $w \rightarrow Q$;
+					\State $d[w] \gets d[v] + 1$;
+				\EndIf
+				\If{$d[w] = d[v] + 1$}
+					\State $\sigma[w] \gets \sigma[w] + \sigma[v]$;
+					\State append $v \rightarrow P[w]$;
+				\EndIf
+			\EndFor
+		\EndWhile
+		\State $\mu[v] \gets 0, \forall v \in V$
+		\While{$S$ not empty}
+			\State pop $w \gets S$;
+			\For{$v \in P[w]$}
+				\State $\mu[v] \gets \mu[v] + \frac{\sigma[v]}{\sigma[w]}
+					\cdot \paren*{1 + \mu[w]}$
+			\EndFor
+			\If{$w \neq s$}
+				\State $B[w] \gets B[w] + \mu[w]$;
+			\EndIf
+		\EndWhile
+	\EndFor
+\EndFunction
 \end{algorithmic}
 \end{algorithm}

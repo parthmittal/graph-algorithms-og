@@ -1,0 +1,142 @@
+\documentclass[letterpaper,11pt]{report}
+
+\usepackage{fullpage}
+\usepackage{verbatim}
+\usepackage{cite}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+
+%\usepackage{noReferences}
+\usepackage[small]{caption}
+\usepackage{graphics}
+\usepackage{color}
+
+\usepackage{hyperref}
+
+%\usepackage{natbib}
+
+\usepackage[dvips]{graphicx}
+ % define the title
+
+
+% Paper conservation layout. Long live the trees!!
+\setlength{\oddsidemargin}{-0.4mm} % 25 mm left margin
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{160mm}      % 25 mm right margin
+\setlength{\topmargin}{-5.4mm}     % 20 mm top margin
+\setlength{\headheight}{5mm}
+\setlength{\headsep}{5mm}
+\setlength{\footskip}{10mm}
+\setlength{\textheight}{237mm}     % 20 mm bottom margin
+
+
+\setlength{\parskip}{1ex}
+\parindent 0in
+\def\SAONE{Specific Aim 1}
+\def\SATWO{Specific Aim 2}
+\def\SATHREE{Specific Aim 3}
+\def\SAFOUR{Specific Aim 4}
+
+\def\title{Mytitle}
+%\def\titletwo{Thesis Proposal Title Line 2}
+
+\begin{document}
+
+\include{btech_thesis_cover}
+
+%\newpage
+%
+%\pagestyle{empty}
+%\vspace*{7.1in} 
+
+\newpage
+
+\begin{center}
+\textbf{\Large Student's Declaration}\label{section:declaration}
+\end{center}
+%\vspace{3in}
+I hereby declare that the work presented in the report entitled \textbf{``...(title)..."} submitted by me for the partial fulfillment of the requirements for the degree of \emph{Bachelor of Technology} in \emph{Computer Science \& Engineering} at
+ Indraprastha Institute of Information Technology, Delhi, is an authentic record of my work carried out under guidance of \textbf{....(advisors' name)....}. Due acknowledgements have  been given in the report to all material used. This work has not been submitted anywhere else for the reward of any other degree.
+ \\ \vspace{0.5in}
+
+\textbf{..............................}\hfill
+\textbf{ Place \& Date: .............................} \\
+\textbf{...(student's name)...}
+
+%\doublespacing
+
+
+
+\vspace{3in}
+%\iffalse
+\begin{center}
+\textbf{\Large Certificate} \label{section:certificate}
+\end{center}
+%\vspace{3in}
+This is to certify that the above statement made by the candidate is correct to the best of my knowledge.
+ \\ \vspace{0.4in}
+
+\textbf{..............................}\hfill
+\textbf{ Place \& Date: .............................} \\
+\textbf{..(advisors' name)...}\\
+
+
+
+\pagebreak
+
+\begin{abstract}
+
+XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX  \\
+
+\vspace{2in}
+Keywords: ..(e.g.Mobile computing, security, complexity, algorithms, image analysis, machine learning, information retrieval)...
+\end{abstract}
+
+\newpage
+
+
+
+\section*{Acknowledgments}\label{section:acknowledgments}
+\pagestyle{plain}
+\pagenumbering{roman}
+
+XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX XXXXXX 
+
+\vspace{2in}
+\section*{Work Distribution}
+% explain chapterwise when  the reported work has been done.
+
+\newpage
+
+\tableofcontents
+
+%\newpage
+
+%\newpage
+
+\newpage
+\mbox{}
+
+
+%\doublespacing
+
+\chapter{Introduction}\label{chapter:introduction}
+%\pagestyle{fancy}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\onehalfspacing
+\cite{Perugini:2007:SOI:1240624.1240770}
+
+
+%\newpage
+%\bibliographystyle{these}
+\bibliographystyle{acm}
+%\bibliographystyle{elsart-harv}
+%\newpage
+%\section{References}
+%\bibliography{Library}
+\bibliography{sample}
+
+%\chapter*{Appendix}\label{chapter:appendix} 
+
+\end{document}
