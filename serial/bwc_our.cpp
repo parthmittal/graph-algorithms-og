@@ -102,11 +102,9 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 	vector<int> dist(G.N, -1);
 	vector<long long> num_paths(G.N, 0);
 
+	/* here, v is in V(G) */
 	#define SET_DISTANCE(v, distance, paths)        \
 	do {                                            \
-		if (v == leftV[u] || v == rightV[u]) {      \
-			continue;                               \
-		}                                           \
 		if (dist[v] == -1 || distance < dist[v]) {  \
 			dist[v]      = distance;                \
 			num_paths[v] = 0;                       \
@@ -160,7 +158,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 			num_paths[leftV[u]]  = 1;
 			num_paths[rightV[u]] = 1;
 
-			size_t i = 0, j = 0;
+			size_t i = 1, j = 1;
 			while(i < L.size() && j < R.size()) {
 				int v = L[i], w = R[j];
 				int d1 = distL[u] + Lrv.dist[v];
@@ -368,7 +366,8 @@ void bwc_our::sim_brandes_all()
 					for (auto &w : e.vids) {
 						if (!done[w]) {
 							done[w] = 1;
-							sim_brandes1(w, *info[u], *info[v]);
+							sim_brandes1(w, *info[id[leftV[w]]],
+									*info[id[rightV[w]]]);
 						}
 					}
 					#endif
