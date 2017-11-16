@@ -28,7 +28,6 @@ typedef long long ll;
 typedef pair <int, int> pii;
 typedef pair <ll, ll> pll;
 
-vector<pii> edges;
 map<int, int> coord;
 
 int main()
@@ -36,18 +35,24 @@ int main()
 	int N, M;
 	scanf("%d%d", &N, &M);
 	printf("%d %d\n", N, M);
-	edges.resize(M);
-	for (auto &e : edges) {
+
+	set<pii> edges; /* don't want multi-edges */
+	for (int i = 1; i <= M; ++i) {
+		pii e;
 		scanf("%d%d", &e.first, &e.second);
 		coord[e.first];
 		coord[e.second];
+		if (e.first > e.second) {
+			swap(e.first, e.second);
+		}
+		edges.insert(e);
 	}
 	int j = 1;
 	for (auto &x : coord) {
 		x.second = j++;
 	}
-	for (auto &e : edges) {
-		e.first = coord[e.first];
+	for (auto e : edges) {
+		e.first  = coord[e.first];
 		e.second = coord[e.second];
 		printf("%d %d\n", e.first, e.second);
 	}
