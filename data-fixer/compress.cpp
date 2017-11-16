@@ -34,7 +34,6 @@ int main()
 {
 	int N, M;
 	scanf("%d%d", &N, &M);
-	printf("%d %d\n", N, M);
 
 	set<pii> edges; /* don't want multi-edges */
 	for (int i = 1; i <= M; ++i) {
@@ -45,8 +44,13 @@ int main()
 		if (e.first > e.second) {
 			swap(e.first, e.second);
 		}
-		edges.insert(e);
+		if (e.first < e.second) {
+			edges.insert(e);
+		}
 	}
+
+	printf("%d %lu\n", N, edges.size());
+
 	int j = 1;
 	for (auto &x : coord) {
 		x.second = j++;
