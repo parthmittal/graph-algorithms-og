@@ -3,6 +3,7 @@
 #include "graph.hpp"
 #include "sssp.hpp"
 #include "count-sort.hpp"
+#include "bwc_brandes.hpp"
 
 #include <queue>
 #include <stack>
@@ -385,9 +386,8 @@ void bwc_our::sim_brandes_all()
 		if (!Gr.sig[root]) {
 			#ifndef __DRY_RUN__
 			assert(!vis[root]);
-			info[root] = get_node_info(root);
-			sim_brandes1(rid[root], *info[root], *info[root]);
-			info[root].reset();
+			/* instead of simulating for this , just run Brandes Algorithm */
+			brandes1(G, rid[root], bwc);
 			#endif
 		}
 	}
