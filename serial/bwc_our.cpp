@@ -351,7 +351,7 @@ void bwc_our::sim_brandes_all()
 
 			for (auto &e : Gr.adj_list[u]) {
 				int v = e.v.id;
-				if (vis[v] == 0 && Gr.sig[v]) {
+				if (vis[v] == 0 && Gr.sig[v] && !e.vids.empty()) {
 					/* the dry run simulates the allocations we'd make */
 					bfq.push(v);
 					vis[v] = 1;
