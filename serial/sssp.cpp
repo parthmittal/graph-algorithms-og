@@ -5,6 +5,7 @@
 #include <queue>
 #include <functional>
 #include <iostream>
+#include <chrono>
 
 struct queue_element_t {
 	int dist;
@@ -16,11 +17,16 @@ struct queue_element_t {
 	}
 };
 
+long long sssp_profile = 0;
+
 void
 sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 		std::vector<int> &dist, std::vector<ll> &num_paths)
 {
 	using namespace std;
+	using namespace std::chrono;
+
+	high_resolution_clock::time_point stime = high_resolution_clock::now();
 
 	dist.resize(G.N, -1);
 	num_paths.resize(G.N, 0);
@@ -58,4 +64,8 @@ sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 			}
 		}
 	}
+
+	high_resolution_clock::time_point etime = high_resolution_clock::now();
+	auto duration = duration_cast<milliseconds>( etime - stime ).count();
+	sssp_profile += duration;
 }

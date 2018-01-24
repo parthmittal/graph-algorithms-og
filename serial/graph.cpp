@@ -32,6 +32,14 @@ void reduced_graph_t::add_vertex()
 void
 reduced_graph_t::add_edge(int u, int v, std::vector<int> vid, int weight)
 {
+	int x = std::min(u, v), y = std::max(u, v);
+	auto it = best_cost.find({x, y});
+	if (it == best_cost.end()) {
+		best_cost[{x, y}] = weight;
+	} else {
+		it -> second = std::min(it -> second, weight);
+	}
+
 	assert(u < N  && v < N);
 	adj_list[u].push_back({{u}, {v}, vid, weight});
 	reverse(vid.begin(), vid.end());

@@ -1,4 +1,6 @@
 #include <vector>
+#include <map>
+#include <utility>
 #include <algorithm>
 
 #ifndef __GRAPH_hpp__
@@ -40,10 +42,11 @@ struct w_edge_t {
 
 struct w_expanded_edge_t : w_edge_t {
 	std::vector<int> vids;
+	bool relevant;
 	w_expanded_edge_t(vertex_t u, vertex_t v, std::vector<int> vids, int w)
-		: w_edge_t(u, v, w), vids(vids) {}
+		: w_edge_t(u, v, w), vids(vids), relevant(false) {}
 	w_expanded_edge_t()
-		: w_edge_t(), vids(0) {}
+		: w_edge_t(), vids(0), relevant(false) {}
 };
 
 typedef std::vector<edge_t> path_t;
@@ -57,6 +60,8 @@ struct undirected_graph_t {
 };
 
 struct reduced_graph_t {
+	std::map< std::pair<int, int>, int > best_cost;
+
 	reduced_graph_t ();
 	void add_vertex();
 	void add_edge(int u, int v, std::vector<int> vid, int weight);

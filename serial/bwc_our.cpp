@@ -94,10 +94,35 @@ bwc_our::compute_reduced_graph()
 		G.adj_list[ear_start].pop_back();
 		G.adj_list[ear_end].pop_back();
 	}
-	fprintf(stderr, "constructed reduced graph, with %d vertices\n", Gr.N);
+
+	int mxd = 0;
+	int nedges = 0;
+	int cut = 0;
+	for (int i = 0; i < Gr.N; ++i) {
+		int actual_degree = 0;
+		for (auto &fe : Gr.adj_list[i]) {
+			int x = min(i, fe.v.id), y = max(i, fe.v.id);
+			if (fe.w == Gr.best_cost[{x, y}]) {
+				fe.relevant = true;
+				++actual_degree;
+			} else {
+				++cut;
+			}
+		}
+		mxd = max(mxd, actual_degree);
+		nedges += actual_degree;
+	}
+
+	nedges /= 2;
+	cut /= 2;
+
+	fprintf(stderr, "cut (%d) edges\n", cut);
+
+	fprintf(stderr, "constructed reduced graph, with %d vertices, "
+			"%d edges, and max degree (%d) \n", Gr.N, nedges, mxd);
 }
 
-void
+	void
 bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 {
 	using namespace std;
@@ -106,7 +131,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 	vector<long long> num_paths(G.N, 0);
 
 	/* here, v is in V(G) */
-	#define SET_DISTANCE(v, distance, paths)        \
+#define SET_DISTANCE(v, distance, paths)        \
 	do {                                            \
 		if (dist[v] == -1 || distance < dist[v]) {  \
 			dist[v]      = distance;                \
@@ -302,7 +327,7 @@ bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 		}
 	}
 
-	#undef SET_DISTANCE
+#undef SET_DISTANCE
 }
 
 std::unique_ptr<rgraph_vinfo> bwc_our::get_node_info(int u)
@@ -325,10 +350,10 @@ void bwc_our::sim_brandes_all()
 	vector<int> vis(Gr.N);
 	vector<int> done(G.N);
 
-	#ifdef __DRY_RUN__
+#ifdef __DRY_RUN__
 	int max_allocated     = 0;
 	int current_allocated = 0;
-	#endif // __DRY_RUN__
+#endif // __DRY_RUN__
 	for (int root = 0; root < Gr.N; ++root) {
 		if (!Gr.sig[root] || vis[root]) {
 			continue;
@@ -338,12 +363,12 @@ void bwc_our::sim_brandes_all()
 		bfq.push(root);
 		vis[root] = 1;
 
-		#ifdef __DRY_RUN__
-			++current_allocated;
-			max_allocated = max(max_allocated, current_allocated);
-		#else
-			info[root] = get_node_info(root);
-		#endif
+#ifdef __DRY_RUN__
+		++current_allocated;
+		max_allocated = max(max_allocated, current_allocated);
+#else
+		info[root] = get_node_info(root);
+#endif
 
 		while(!bfq.empty()) {
 			int u = bfq.front();
@@ -356,15 +381,15 @@ void bwc_our::sim_brandes_all()
 					bfq.push(v);
 					vis[v] = 1;
 
-					#ifdef __DRY_RUN__
+#ifdef __DRY_RUN__
 					++current_allocated;
 					max_allocated = max(max_allocated, current_allocated);
-					#else /* not a dry run, so actually make the allocation */
+#else /* not a dry run, so actually make the allocation */
 					info[v] = get_node_info(v);
-					#endif
+#endif
 				}
 				if (vis[v] == 1) {
-					#ifndef __DRY_RUN__
+#ifndef __DRY_RUN__
 					for (auto &w : e.vids) {
 						if (!done[w]) {
 							done[w] = 1;
@@ -372,36 +397,39 @@ void bwc_our::sim_brandes_all()
 									*info[id[rightV[w]]]);
 						}
 					}
-					#endif
+#endif
 				}
 			}
 
 			vis[u] = 2;
-			#ifdef __DRY_RUN__
+#ifdef __DRY_RUN__
 			--current_allocated;
-			#else
+#else
 			if (!done[rid[u]]) {
 				sim_brandes1(rid[u], *info[u], *info[u]);
 				info[u].reset(); /* calls destructor on *(info[u]) */
 			}
-			#endif
+#endif
 		}
 	}
 
 	for (int root = 0; root < Gr.N; ++root) {
 		if (!Gr.sig[root]) {
-			#ifndef __DRY_RUN__
+#ifndef __DRY_RUN__
 			assert(!vis[root]);
 			assert(!done[rid[root]]);
 			/* instead of simulating for this , just run Brandes Algorithm */
 			brandes1(G, rid[root], bwc);
-			#endif
+#endif
 		}
 	}
 
-	#ifdef __DRY_RUN__
+#ifdef __DRY_RUN__
 	fprintf(stderr, "max number of active elements was %d\n", max_allocated);
-	#endif
+#endif
+
+	fprintf(stderr, "total time on SSSP in reduced graph was %lld ms\n",
+			sssp_profile);
 }
 
 #endif //__OUR__
