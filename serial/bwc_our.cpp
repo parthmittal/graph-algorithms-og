@@ -95,6 +95,10 @@ bwc_our::compute_reduced_graph()
 		G.adj_list[ear_end].pop_back();
 	}
 
+	for (int i = 0; i < Gr.N; ++i) {
+		sssp_khops(i, Gr, 2);
+	}
+
 	int mxd = 0;
 	int nedges = 0;
 	int cut = 0;
@@ -122,7 +126,7 @@ bwc_our::compute_reduced_graph()
 			"%d edges, and max degree (%d) \n", Gr.N, nedges, mxd);
 }
 
-	void
+void
 bwc_our::sim_brandes1(int u, const rgraph_vinfo &Lrv, const rgraph_vinfo &Rrv)
 {
 	using namespace std;

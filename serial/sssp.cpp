@@ -69,3 +69,24 @@ sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 	auto duration = duration_cast<milliseconds>( etime - stime ).count();
 	sssp_profile += duration;
 }
+
+void
+sssp_khops(int source, reduced_graph_t &G, int k)
+{
+	using namespace std;
+
+	if (k <= 0) {
+		return;
+	}
+	for (auto &e : G.adj_list[source]) {
+		int w = e.w;
+		int u = min(source, e.v.id), v = max(source, e.v.id);
+		auto it = G.best_cost.find({u, v});
+		if (it == G.best_cost.end()) {
+			G.best_cost[{u, v}] = w;
+		} else {
+			it -> second = std::min(it -> second, w);
+			sssp_khops(e.v.id, G, k - 1);
+		}
+	}
+}
