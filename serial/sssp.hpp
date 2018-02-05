@@ -15,6 +15,7 @@ sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 		std::vector<int> &dist, std::vector<ll> &num_paths);
 
 void
-sssp_khops(int source, reduced_graph_t &G, int k);
+sssp_khops(int source, int u, std::vector<int> &dist, reduced_graph_t &G,
+		std::stack<int> &reset, int k);
 
 #endif // __SSSP_hpp__

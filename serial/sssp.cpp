@@ -71,22 +71,24 @@ sssp(int source, const reduced_graph_t &G, std::vector<int> &S,
 }
 
 void
-sssp_khops(int source, reduced_graph_t &G, int k)
+sssp_khops(int source, int u, std::vector<int> &dist, reduced_graph_t &G,
+		std::stack<int> &reset, int k)
 {
 	using namespace std;
 
 	if (k <= 0) {
 		return;
 	}
-	for (auto &e : G.adj_list[source]) {
-		int w = e.w;
-		int u = min(source, e.v.id), v = max(source, e.v.id);
-		auto it = G.best_cost.find({u, v});
-		if (it == G.best_cost.end()) {
-			G.best_cost[{u, v}] = w;
-		} else {
-			it -> second = std::min(it -> second, w);
-			sssp_khops(e.v.id, G, k - 1);
+	for (auto &e : G.adj_list[u]) {
+		int w = dist[u] + e.w;
+		int v = e.v.id;
+		if (dist[v] == -1) {
+			reset.push(v);
+			dist[v] = w;
+			sssp_khops(source, v, dist, G, reset, k - 1);
+		} else if (dist[v] > w) {
+			dist[v] = w;
+			sssp_khops(source, v, dist, G, reset, k - 1);
 		}
 	}
 }

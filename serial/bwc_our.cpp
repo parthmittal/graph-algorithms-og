@@ -95,26 +95,32 @@ bwc_our::compute_reduced_graph()
 		G.adj_list[ear_end].pop_back();
 	}
 
-	for (int i = 0; i < Gr.N; ++i) {
-		sssp_khops(i, Gr, 2);
-	}
-
+	vector<int> dist(Gr.N, -1); stack<int> reset;
 	int mxd = 0;
 	int nedges = 0;
 	int cut = 0;
 	for (int i = 0; i < Gr.N; ++i) {
 		int actual_degree = 0;
+		dist[i] = 0;
+		sssp_khops(i, i, dist, Gr, reset, 1);
 		for (auto &fe : Gr.adj_list[i]) {
-			int x = min(i, fe.v.id), y = max(i, fe.v.id);
-			if (fe.w == Gr.best_cost[{x, y}]) {
+			if (fe.w == dist[fe.v.id]) {
 				fe.relevant = true;
 				++actual_degree;
 			} else {
+				assert(dist[fe.v.id] > 0);
 				++cut;
 			}
 		}
-		mxd = max(mxd, actual_degree);
+
+		while(!reset.empty()) {
+			dist[reset.top()] = -1;
+			reset.pop();
+		}
+		dist[i] = -1;
+
 		nedges += actual_degree;
+		mxd = max(mxd, actual_degree);
 	}
 
 	nedges /= 2;
