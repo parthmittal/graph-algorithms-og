@@ -83,6 +83,7 @@ struct crs_row_t {
 	int *begin();
 	int *end();
 	int size();
+	int operator[](int idx);
 };
 
 struct crs_t {

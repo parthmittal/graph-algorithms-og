@@ -57,6 +57,12 @@ int crs_row_t::size()
 	return std::distance(start, finish);
 }
 
+int crs_row_t::operator[](int idx)
+{
+	assert(idx < size());
+	return *(start + idx);
+}
+
 crs_t::crs_t (const std::vector< std::vector<vertex_t> > &adj)
 	: start_idx(adj.size()), end_idx(adj.size())
 {
