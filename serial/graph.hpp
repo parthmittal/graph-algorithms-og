@@ -77,4 +77,21 @@ struct rgraph_vinfo {
 	std::vector<int> inorder; /* vertices of Gr ordered by distance from this */
 };
 
+struct crs_row_t {
+	int *start, *finish;
+
+	int *begin();
+	int *end();
+	int size();
+};
+
+struct crs_t {
+	std::vector<int> adj_collapse;
+	std::vector<int> start_idx;
+	std::vector<int> end_idx;
+
+	crs_t (const std::vector< std::vector<vertex_t> > &adj);
+	crs_row_t operator[](int u);
+};
+
 #endif // __GRAPH_hpp__

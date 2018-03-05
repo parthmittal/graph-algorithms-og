@@ -41,3 +41,42 @@ reduced_graph_t::add_edge(int u, int v, std::vector<int> vid, int weight)
 reduced_graph_t::reduced_graph_t()
 	:N(0), adj_list(0)
 {}
+
+int *crs_row_t::begin()
+{
+	return start;
+}
+
+int *crs_row_t::end()
+{
+	return finish;
+}
+
+int crs_row_t::size()
+{
+	return std::distance(start, finish);
+}
+
+crs_t::crs_t (const std::vector< std::vector<vertex_t> > &adj)
+	: start_idx(adj.size()), end_idx(adj.size())
+{
+	int N = adj.size();
+	for (int u = 0; u < N; ++u) {
+		int si = adj_collapse.size();
+		for (auto &v : adj[u]) {
+			adj_collapse.push_back(v.id);
+		}
+		int ei = adj_collapse.size();
+
+		start_idx[u] = si;
+		end_idx[u] = ei;
+	}
+}
+
+crs_row_t crs_t::operator[](int u)
+{
+	int si = start_idx[u];
+	int ei = end_idx[u];
+
+	return crs_row_t{ &adj_collapse[0] + si, &adj_collapse[0] + ei };
+}

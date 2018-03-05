@@ -24,6 +24,16 @@ int main()
 		g.add_edge({u - 1}, {v - 1});
 	}
 
+	crs_t crs(g.adj_list);
+	fprintf(stderr, "constructed crs of g\n");
+	for (int i = 0; i < N; ++i) {
+		fprintf(stderr, "%d: ", i);
+		for (auto &v : crs[i]) {
+			fprintf(stderr, "%d ", v);
+		}
+		fprintf(stderr, "\n");
+	}
+
 	int deg_three = 0;
 	for (int i = 0; i < N; ++i) {
 		deg_three += (g.adj_list[i].size() > 2);
